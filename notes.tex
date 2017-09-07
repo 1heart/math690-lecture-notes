@@ -265,4 +265,116 @@ $$ \mathbb{E}S_y = \Sigma_y = \Sigma_x + \alpha^2 I_p \text{, exercise} $$
 
 If we're in the classical case, where $p$ is fixed, $\hat{\Sigma}_y, \hat{\sigma} \Rightarrow \hat{\sigma}_x = \hat{\sigma}_y - \sigma^2 I$. Inconsistency of $p \approx n, p \gg n$.
 
+\part*{September 7}
+
+Setting up:
+
+$$ y_i = X_i + z_i \text{ (i.e. info + noise)} $$
+
+$$ z_i \sim N(0, \sigma^2I), x_i \sim P_x $$
+
+$$ \Sigma_y = \Sigma_x + \sigma^2 I $$
+
+$$ \Sigma_x \rightarrow \Sigma_y $$
+
+$$ S_y = \frac{1}{n} \sum_i (x_i + z_i ) (x_i + z_i)^T = S_x \text{``+''} S_z $$
+
+Think of $X \in \mathbb{R}^{p \times n} = U \pmb{1}^T = [U \cdots U]$.
+
+\textbf{Null case}
+
+$$ S = \frac{1}{n} \sum_i z_i z_i^T , z_i \sim N(0, I_p) $$
+
+Question: what is eig($S$) like?
+
+\textbf{Marcenko-Pastur Law '67}: $ P, n \rightarrow + \infty, P/n \rightarrow \gamma > 0 $. Distribution of eigenvalues of $S$ converges to limiting density
+
+$$p_{MP} (t) = \frac{\sqrt{(t-a)(b-t)}}{2\pi \gamma t}, a < t < b, a = (1-\sqrt{\gamma})^2 , b = (1+\sqrt{\gamma})^2$$
+
+The mathematical formulation:
+
+Definition: The empirical spectral density (ESD) =
+
+$$ \frac{1}{p} \sum_{i=1}^p \delta_{\lambda_i} $$
+
+for eigenvalues of $S$ $\lambda_1 , \cdots, \lambda_p$
+
+The convergence of $ESD_S(S) \rightarrow^w p_{MP} (t)$ almost surely
+
+Remark: when $\gamma \rightarrow 0^+$, this density converges to $\delta_1$ (population case). when $\gamma \rightarrow +\infty$, this density will be roughly a semicircle centered at $\gamma$
+
+
+Remark: Convergence to limit density is \text{fast}
+
+$$ p , \sim 10^2 \text{ , theapproximation is OK} $$
+
+Remark: ``White MP''
+
+$$ z_i \sim N(0, I_p) $$
+
+$$ \text{ when } z_i \sim N(0, \Sigma), \Sigma \neq I $$
+
+``Colored MP''
+
+Limiting distribution of eig($\Sigma$), $\frac{1}{2}d_1 + \frac{1}{2} d_2$
+
+\section*{Proof of Marcenko-Pasture Density}
+
+$$ \mathbb{E}_{x \sim p} e^{i \xi x} = \phi(\xi) $$
+
+$$ \mathbb{E} \exp[i \xi \frac{1}{\sqrt{n}} (x_1 + \cdots + x_n)] = \prod_i ( \mathbb{E} \exp[i \xi \frac{x_i}{n})] = \text{ Taylor series approximation } \rightarrow \phi(\xi)_{\text{Gaussian}} $$
+
+Stieltjes Transform of $\mu$: $p(t)$ probabilistic density $d \mu(t) = p(t) dt$
+
+$m_\mu(\xi) = \int_{-\infty}^{+\infty} \frac{1}{t-\xi} d \mu(t), I_m(\xi) > 0$
+
+Lemma 1: A sequence of probability measures $\mu_n \rightarrow \mu$ if and only if $m_n(\xi) \rightarrow m(\xi), \forall \xi, Im(z) > 0$, $m_n(\xi)$ is the Stieltjes Transform of $\mu_n$.
+
+Lemma 2: MP Equation: consider $m(\xi)$, the Stieltjes Transform of the MP density. Then $ \xi + \frac{1}{m(\xi)} = \frac{1}{1+\delta m(\xi)}$ (*)
+
+Proof of Lemma 2:
+
+Inversion formula for Stieltjes Transform
+
+$$ \lim_{b \rightarrow 0+} Im ( m_\mu (t + ib)) = \pi \cdot p(t) $$
+
+The solution of (*)
+
+$$ m(\xi) = \frac{-(\xi + \gamma -1) \pm \sqrt{ \cdots}}{2 \xi \delta} $$
+
+Verify that $Im(m(t+ib)) \rightarrow \pi \cdot p_{MP}(t)$
+
+Back to the main theorem:
+
+It suffices to show that $m_n (\xi)$ on the limit of $n, p \rightarrow \infty, \cdots$ satisfies (*):
+
+
+$$ m_n(\xi) = \int_\mathbb{R} \frac{1}{t-\xi}  ESD_{s}(t) dt $$
+
+$$ \frac{1}{p} \sum_{i=1}^p \frac{1}{\lambda_i - \xi} = \frac{1}{p} Tr(S - \xi I)^{-1} $$
+
+Recall that $S = \frac{1}{n} \sum_{i} \xi_i \xi_i^T = \sum_{i=1}^n x_i x_i^T, x_i = \frac{\xi_i}{\sqrt{n}}$
+
+Identity:
+
+$$ I + \xi(B-\xi I)^{-1} B(B- \xi I)^{-1} $$
+
+``$I + \frac{\xi}{B-\xi} = \frac{B}{B-\xi_i}$''
+
+$\frac{1}{p} Tr(\cdot)$ both sides:
+
+$$ 1 + \xi \frac{1}{p} Tr(B - \xi)^{-1} = \frac{1}{p} Tr(B (B- \xi)^{-1}) $$
+
+$$ = \frac{1}{p} \sum_i Tr(x_i x_i^T (B- \xi I)^{-1}) $$
+
+$$ x_i^T(B - \xi I)^{-1} x_i = x_i^T(x_ix_i^T + B_{(i)} + B_{(i)} - \xi I)^{-1} x_i $$
+
+$$ B = \sum_{j \neq i} x_j x_j^T + x_i x_i^T $$
+
+Using Sherman-Morrison:
+
+$$ \frac{\gamma m_n(\xi)}{1+\gamma m(\xi)} $$
+
+Look at the reference book by Terry Tao on random matrices. Search for introduction to random matrix theory.
+
 \end{document}
