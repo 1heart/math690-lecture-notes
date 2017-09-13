@@ -325,7 +325,7 @@ $$ z_i \sim N(0, I_p) $$
 $$ \text{ when } z_i \sim N(0, \Sigma), \Sigma \neq I $$
 For example, if $\Sigma$ has 2 eigenvalues $d_1, d_2$, the the limiting distribution of eig($S$) when $P/n \rightarrow 0$ is like $\frac{1}{2}d_1 + \frac{1}{2} d_2$.
 
-\section*{Proof of Marcenko-Pasture Density}
+\section*{Proof of Marchenko-Pastur Density}
 Recall first the proof of CLT, we prove that the characteristic function of $\frac{1}{n}\sum_i^n x_i$ converges to that of normal distribution.
 $$ \mathbb{E}_{x \sim p} e^{i \xi x} = \phi(\xi) $$
 
@@ -382,4 +382,41 @@ $$ \frac{\gamma m_n(z)}{1+\gamma m(z)} $$
 
 Look at the reference book by Terrence Tao on random matrices. Search for introduction to random matrix theory.
 
+\part*{September 12}
+Last time we talked about Marchenko-Pastur Law, which is the null case, i.e. $y_i=z_i \sim N(0,\sigma^2 I)$. Today we will talk have a few remarks on M-P law, and move on to introduce spiking law and possible better estimator than $S$. \\
+Remark:
+\begin{enumerate}
+\item if we replace Gaussian distribution with other distributions, say $x_{ij} \sim Bernoulli, P(x_{ij} = 1) = P(x_{ij} = 1) = 1/2$, we still get the semi-circle law. Generally speaking, if $[X]_{p \times n} = [x_1, \cdots, x_n] $, $S = \frac{1}{n}XX^T$, then if $x_{ij} \sim p(x)$ i.i.d. , and has finite first 4 moment, then the distribution of $S$'s eigenvalues, eigenvectors satisfy M-P law.
+\item ``edge law'': the largest eigenvalue of $S$, $\hat{\lambda}_1(S) \rightarrow^{a.s.} b(\gamma)$. ``Tracy-widon'' law: $\frac{\hat{\lambda}_1(S) -b}{n^{-3/2}} \rightarrow^{distribution} \text{Tracy-Widon density}$. 
+\item Recall that $\mathbb{E}\|S-\Sigma\|^2_F \sim \frac{cp^2}{n}$, if the true covariance matrix is identity matrix, $\Sigma = I_p$, then we do have curse of dimensionality, i.e. the bound is tight and $p$ matters. To see this, we can compute
+$$\|S-I\|^2_F = \sum_{i=1}^p (\lambda_i - 1)^2 = p \int_{\mathbb{R}} (t-1)^2 p_{MP}(t)dt = const(\gamma) p \sim c\frac{p}{n}p$$
+The second equality comes from the definition of weakly convergence.
+\end{enumerate}
+
+
+\section*{Spiking Model}
+Moving past the null case, we know consider $y_i = x_i + z_i, x_i \sim p_x=N(0, \Sigma_x), z_i \sim N(0,\sigma^2 I)$, also $\Sigma_x = uu^T, \|u\|=1$. Now we want to find the properties of the eigenvalues, eigenvectors of $S_y = \frac{1}{n}\sum y_i y_i^T$ under the conditions that $p,n \rightarrow \infty, p/n \rightarrow \gamma$. \\
+We define $R = \frac{1}{\sigma^2}$, this can be seen as the signal-to-noise ratio. We rescale $y_i \rightarrow y_i\sqrt{R}$, correspondingly $z_i \sim N(0,I), x_i \sim N(0, R uu^T)$. Let $\hat{\lambda}_1$ be the largest eigenvalue of $S_y$, $\hat{v_1}$ be the corresponding eigenvector, then the theorem states:\\
+When  $p,n \rightarrow \infty, p/n \rightarrow \gamma$, 
+$$\hat{\lambda}_1 \rightarrow^{a.s.} (\lambda_1)_{\\infty} = 
+\begin{cases}
+  b(\gamma) = (1+\sqrt{\gamma})^2 & R \leq \sqrt{\gamma}\\
+  (1+R)(1+\frac{\gamma}{R}) & R>\sqrt{\gamma}
+\end{cases}$$
+In terms of eigenvectors, we have 
+$$|\hat{v}_1^Tu|^2 \rightarrow^{a.s.} c_{\infty} = 
+\begin{cases}
+  0 & R \leq \sqrt{\gamma}\\
+  \frac{1-\frac{\gamma}{R^2}}{1+\frac{\gamma}{R}}  & R>\sqrt{\gamma}
+\end{cases}$$
+
+If we plot how $ (\lambda_1)_{\\infty}$ and $c_{\infty}$ changes with $R$(skip the plot :) ), we can see the phase transition at $R=\sqrt{\gamma}$, called the  BBP transition.
+
+\section*{Better estimator than $S$?}
+We can think of ways to have better estimators. For example, spectral shrinkage. Suppose we have the eigendecomposition $S_y = \hat{v} \hat{\Lambda}\hat{v}^T$, then we can estimate $S_x =  \hat{v} f(\hat{\Lambda})\hat{v}^T = \sum_{k=1}^p f(\hat{\lambda}_k)\hat{v}_k \hat{v}_k^T $, we can imagine choosing $f$ as threshold  functions.\\
+\\
+Stein's Phenomenon: Can we find estimators with lower risks than MLE? For example if $y \sim N(\mu, \Sigma)$ and we want to estimate $\mu$, lower risk means having lower $\mathbb{E}\|\hat{\mu}-\mu\|^2$\\
+If dimension is 1, and we have only one point $y$, then we would estimate $\hat{\mu}=y$\\
+if dimension is 2, the MLE is $\hat{\mu}_1 = y$, but can we find estimators with lower risk? We can let $\hat{\mu}_2 = \rho y, \rho < 1$. For $\hat{\mu}_1$ the risk is $\mathbb{E}\|y-\mu\|^2=2$. For $\hat{\mu}_2 $, the risk is $\mathbb{E}\|\rho y-\mu\|^2= (\rho -1)^2 \|u\|^2 + 2\rho^2$, we can certainly choose $\rho$ such that it is smaller than 2. More generally, Charles Stein had the following result\\
+$$\text{If  } p \geq 3, y \sim N(\mu, \sigma^2 I), \exists \tilde{\mu}(y) \text{  s.t.  } risk(\tilde{\mu}) < risk(\hat{\mu}^{MLE}), \tilde{\mu}(y) = (1-\frac{\sigma^2}{\|\hat{\mu}^{MLE}\|})\hat{\mu}^{MLE}$$
 \end{document}
