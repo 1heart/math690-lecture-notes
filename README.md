@@ -1,6 +1,8 @@
 # Math 690 - Topics in Data Analysis and Computation
 
-[Here](https://github.com/1heart/math690-lecture-notes/blob/master/notes.pdf) are the lecture notes for Duke's MATH690 - Topics in Data Analysis and Computation. Topics that will be covered:
+Lecture notes for Duke's MATH690 - Topics in Data Analysis and Computation. Folders by Topic. 
+
+Topics that will be covered:
 
 - Principal component analysis (PCA) in high dimension
   - Marcenko-Pastur law, random matrix theory and universality
