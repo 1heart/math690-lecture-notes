@@ -8,13 +8,13 @@ Topics that will be covered:
   - Marcenko-Pastur law, random matrix theory and universality
   - Spiking model in covariance estimation
   - Eigen-shrinkage and matrix de-noising
-- Clustering on graphs
-  - Review of spectral clustering and limitations
-  - SDP relaxation: theory and computational issues
 - Graph-based dimension reduction
   - Stochastic neighbor embedding (SNE), comparison with manifold learners (Isomap,
   LLE, diffusion map, etc) and multidimensional scaling (MDS)
   - Heat kernel on manifold, convergence of graph laplacian
+- Clustering on graphs
+  - Review of spectral clustering and limitations
+  - SDP relaxation: theory and computational issues  
 - Estimation on graphs
   - De-noising functions by non-local means
   - Synchronization of group elements on graphs
