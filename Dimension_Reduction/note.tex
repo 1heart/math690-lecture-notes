@@ -12,7 +12,11 @@
 \usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
 
 \usepackage[top=1.25in,bottom=1.25in,left=2in,right=2in]{geometry}
-\usepackage{enumerate}
+\usepackage{enumitem}
+\newlist{steps}{enumerate}{1}
+\setlist[steps, 1]{leftmargin=3\parindent, label = Step \arabic*:}
+
+
 \usepackage{subfig}
 \usepackage{microtype}
 \usepackage{fullpage}
@@ -46,8 +50,6 @@
 \newcommand{\lecture}[4]{\handout{#1}{#2}{Lecturer: #3}{Scribe: #4}{#1}}
 \DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
-
-
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 \newtheorem{remark}{Remark}
@@ -62,7 +64,7 @@
 \newcommand{\example}[1]{\paragraph{Example #1}}
 
 \begin{document}
-\lecture{Dimension Reduction}{September 14, 2017}{Xiuyuan Cheng}{Fred Zhang}
+\lecture{Dimension Reduction}{September 14, 19, 2017}{Xiuyuan Cheng}{Fred Zhang}
 \section{Introduction}
 In this lecture, we continue to discuss covariance estimation. We observe the Stein's phenomenon when MLE is suboptimal and develop the methods of \textit{spectral shrinkage} and covariance thresholding. We then turn to dimension reduction and consider the \textit{Multidimensional Scaling} (MDS) problem, which is equivalent of PCA.
 
@@ -135,14 +137,82 @@ Hence, it not possible to always preserve metrics in reducing dimensions. Howeve
 
 \section{Multidimensional Scaling (MDS)}
 Given $\mathbf{X} = [\mathbf{x_1},\ldots,\mathbf{x_n}]_{D\times n}$, we would like to find $\mathbf{Y}= [\mathbf{y_1},\ldots, \mathbf{y_n}]_{d\times n}$ that minimize the discrepancies $L(Y)$
-\[
+\begin{equation}\label{eqn:otp}
     \min L(\mathbf{Y}) = \sum_{i,j} \left(\norm{\mathbf{y_i}-\mathbf{y_j}}^2-\underbrace{\norm{\mathbf{x_i}-\mathbf{x_j}}^2}_{D_{ij}}\right)^2.
-\]
-Without loss of generality, assume that input data are centered at origin (\textit{i.e.}, $\sum \mathbf{x_i} = \mathbf{0}$ and $\mathbf{X}\cdot \mathbf{1} = \mathbf{0}$).  This problem is in fact equivalent of PCA\@. Let $$D_{ij} = \norm{\mathbf{x_i}-\mathbf{x_j}}^2 = \norm{\mathbf{x_i}}^2 + \norm{\mathbf{x}}_j^2 - 2\mathbf{x_i}^T\mathbf{x_j}.$$ Then it can be expressed as
+\end{equation}
+Without loss of generality, assume that input data are centered at origin (\textit{i.e.}, $\sum \mathbf{x_i} = \mathbf{0}$ and $\mathbf{X}\cdot \mathbf{1} = \mathbf{0}$).  Let $$D_{ij} = \norm{\mathbf{x_i}-\mathbf{x_j}}^2 = \norm{\mathbf{x_i}}^2 + \norm{\mathbf{x}}_j^2 - 2\mathbf{x_i}^T\mathbf{x_j}.$$ Then it can be expressed as
 \[
     \mathbf{D} = \bm{\xi}\mathbf{1}^T +  \mathbf{1}\bm{\xi}^T - 2\bm{G}, 
 \]
-where $\mathbf{G} = \mathbf{X}^T\mathbf{X}$ is the Gramian and $\bm{\xi} = \left[\norm{\mathbf{x_i}}^2 , \ldots, \norm{\mathbf{x_n}}^2\right]^T$.
+where $\mathbf{G} = \mathbf{X}^T\mathbf{X}$ is the Gramian and $\bm{\xi} = \left[\norm{\mathbf{x_i}}^2 , \ldots, \norm{\mathbf{x_n}}^2\right]^T$. In general, the input is not necessarily $\mathbf{X}$ but only the distance matrix $\mathbf{D}$. This problem is in fact equivalent of PCA\@. However, one can still compute the Gramian without not knowing the data coordinates $\mathbf{X}$ by \textit{double centering}.
+
+Let $\bm{H} = \bm{I} - \frac{1}{n}\bm{1}\bm{1}^T$. We notice that since $\bm{H \cdot 1} =\bm{0}$, $\bm{HGH} = \mathbf{H}(\bm{X}^T\bm{X})\bm{H} = G$. Then
+\[
+    - \frac{1}{2}\bm{HDH} = \bm{G}.
+\]
+We obtain $\bm{Y}$, we compute $\mathbf{\widetilde{G}}$ by applying PCA on $\bm{G}$ using the top $k$ eigenvectors. It turns out that setting $\bm{Y} = \bm{S}_{1:d,1:d} \bm{V}_{:,1:d}$ minimizes the objective~(\ref{eqn:otp}).
+
+\section{Isomap}
+Given $\mathbf{X} = [\mathbf{x_i}]_{D\times n}$, we want to embed them in lower dimension by finding $\mathbf{Y}= [\mathbf{y_i}]_{d\times n}$.
+\begin{steps}
+\item Graph construction. Construct a $k$-NN graph such that $A_{ij}=1 $ if $i\in N(j)$ and (or) $j\in N(i)$ and $A_{ij} =0$ otherwise. Here, $N(i)$ is a list of $k$ nearest neighbors in Euclidean distance. As an alternative, one constructs $\epsilon$-graph where $A_{ij}=1$  iff $\norm{\bm{x_i}-\bm{x_j}} < \epsilon$. 
+    \item  Compute graph distance. Compute shortest-path distance $d_{ij}$ for all pairs $i,j$ in the graph 
+    \item Classical MDS\@. Compute $D_{ij} =d^2_{ij}$, the Gramian $\bm{G}=-\frac{1}{2}\bm{HDH}$, then compute the top $d$ eigenvectors of $G$.
+\end{steps}
+\begin{remark}
+    If the data sit on some low-dimensional manifold, under certain assumptions ({\it e.g.}, on sampling of the points), the shortest path distance we compute approximates the geodesic distance on the manifold.
+\end{remark}
+\begin{remark}
+The decay of the eigenvalues of $G$ can indicate the intrinsic dimension of the data.
+\end{remark}
+
+\section{Locally Linear Embedding (LLE)} 
+\begin{steps}
+    \item Construct the $N(i)$ list of $k$-NN for all points.
+    \item Solve least-square optimization problem
+        \[
+            \min _{d_j^{(i)}} \norm{x_i- \sum_{j\in N(i)} d_j^{(i)} x_j}^2
+        \]
+        such that $\sum_{j\in N(i)} d_j^{(i)} =1$.
+    \item Compute 
+        \[
+            W_{ij} = \begin{cases}
+                d_j^{(i)} & j\in N(i)\\
+                0 & \text{otherwise}
+            \end{cases}
+        \]
+        and 
+    \[
+        \min _{\bm{Y}} \sum_{i} \norm{y_i -\sum_j W_{ij}y_j}^2
+    \]
+    such that $\bm{Y}\bm{1}=\bm{0}$ and $\bm{Y}^T\bm{T}=\bm{I}_d$. This turns out to be an eigvenvalue problem on $\bm{M}=(\bm{I}-\bm{W})^T(\bm{I}-\bm{W})$.
+\end{steps}
+\begin{remark}
+    The matrix $\bm{M}$ approximates the graph Laplacian $\bm{L}$ of the $k$-NN graph.
+\end{remark}
+
+\section{Laplacian Eigenmap}
+\begin{steps}
+\item Construct the affinity matrix $\bm{W}$ where 
+    \[ 
+    W_{ij} = e^{\frac{-\norm{x_i-x_j}^2}{\epsilon}}.
+    \]
+    As a simpler alternative, let $W$ be the adjacency matrix by the $k$-NN graph or $\epsilon$-graph
+\item Compute the graph Laplacian $\bm{L} = \mathbf{D} - \bm{W}$.
+\item Compute the eigendecomposition of $\bm{L_{rw}} = \bm{D}^{-1}\bm{L}$:
+    \[
+        \bm{L\Phi} =\bm{\lambda D \Phi}
+    \]
+    Then $\mathbf{Y} = [\Phi_2, \ldots, \Phi_{d+1}]$, eigvenvectors corresponding to the $2$nd and $(d+1)$st smallest eigvenvalue.
+    \end{steps}
+Note 
+    \[
+        \mathbf{L_{rw} = \bm{D}^{-1} (\bm{D}-\bm{W})} = \bm{I} - \underbrace{\bm{D}^{-1}\bm{W}}_{\bm{P}}.
+    \]
+    Here $P_{ij}= W_{ij} / d_i$.  We notice that $\mathbf{P}$ is a probablisitic matrix, and this defines a random walk on the graph. The eigenvalues of $\bm{P}$ are in $[-1,1]$. The largest eigenvalue is $\lambda_1 =1$ is of multiplicity $1$ if the graph is connected and $-1$ is not an eigenvalue if the random walk has not cylces.
+\begin{excercise}
+    What is the stationary distribution of $\bm{P}$?
+\end{excercise}
 
 \bibliographystyle{alpha}
 \bibliography{bib}
