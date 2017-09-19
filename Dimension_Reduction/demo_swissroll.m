@@ -149,10 +149,18 @@ toc
 [lambda,tmp]=sort(diag(d),'descend');
 Y_Lap=v(:,tmp);
 
+%%
 
 figure(31), clf;
+scatter3(Y_Lap(:,2),Y_Lap(:,3),Y_Lap(:,4),40,tt,'+')
+%scatter3(Y_Lap(:,2),Y_Lap(:,5),Y_Lap(:,6),40,tt,'+')
+%scatter3(Y_Lap(:,5),Y_Lap(:,6),Y_Lap(:,7),40,tt,'+')
+grid on; title('Laplace Eigen Map') 
+
+figure(32), clf;
+%scatter3(Y_Lap(:,2),Y_Lap(:,3),Y_Lap(:,4),40,tt,'+')
 scatter3(Y_Lap(:,2),Y_Lap(:,5),Y_Lap(:,6),40,tt,'+')
 %scatter3(Y_Lap(:,5),Y_Lap(:,6),Y_Lap(:,7),40,tt,'+')
-grid on; title('Laplace Eigen Map') %look at fingers at the boundary
+grid on; title('Laplace Eigen Map') 
 
 
