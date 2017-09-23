@@ -58,7 +58,7 @@
 \newtheorem{corollary}{Corollary}
 \newtheorem{fact}[theorem]{Fact}
 \newtheorem{observation}[theorem]{Observation}
-\newtheorem{excercise}{Excercise}
+\newtheorem{exercise}{Exercise}
 \newtheorem{Example}{Example}
 
 \newcommand{\example}[1]{\paragraph{Example #1}}
@@ -119,9 +119,9 @@ Now we introduce another method for denoising the sample covariance and estimate
 \end{figure}
 
 That is, we filter out entries of small absolute values.
-\begin{excercise}
+\begin{exercise}
     Let $y_i\sim \mathcal{N}(0,1)$ be i.i.d.\ Gaussian samples. After applying the thresholding function with $\delta = \frac{2\log n}{\sqrt{n}}$ on the sample covariance,  non-diagonal entries converge to $\mathcal{N}(0,c/n)$ as $n\rightarrow \infty$, for some constant $c$. Roughly speaking, only diagonal entries remain.
-\end{excercise}
+\end{exercise}
 
 For more on the thresholding method and its theoretical justification, see~\cite{bickel2008covariance}. This is also related to the whole area of Sparse PCA; see~\cite{johnstone2009consistency}.
 
@@ -209,10 +209,10 @@ Note
     \[
         \mathbf{L_{rw} = \bm{D}^{-1} (\bm{D}-\bm{W})} = \bm{I} - \underbrace{\bm{D}^{-1}\bm{W}}_{\bm{P}}.
     \]
-    Here $P_{ij}= W_{ij} / d_i$.  We notice that $\mathbf{P}$ is a probablisitic matrix, and this defines a random walk on the graph. The eigenvalues of $\bm{P}$ are in $[-1,1]$. The largest eigenvalue is $\lambda_1 =1$ is of multiplicity $1$ if the graph is connected and $-1$ is not an eigenvalue if the random walk has not cylces.
-\begin{excercise}
+    Here $P_{ij}= W_{ij} / d_i$.  We notice that $\mathbf{P}$ is a probablisitic matrix, and this defines a random walk on the graph. The eigenvalues of $\bm{P}$ are in $[-1,1]$. The largest eigenvalue is $\lambda_1 =1$ is of multiplicity $1$ if the graph is connected and $-1$ is not an eigenvalue if the random walk has no cycles.
+\begin{exercise}
     What is the stationary distribution of $\bm{P}$?
-\end{excercise}
+\end{exercise}
 
 \bibliographystyle{alpha}
 \bibliography{bib}

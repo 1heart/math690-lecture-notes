@@ -1,0 +1,205 @@
+\documentclass[11pt]{article}
+\usepackage{latexsym}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsthm,calc}
+\usepackage{euscript}
+\usepackage{mathpazo}
+\usepackage{mathtools}
+\usepackage{tabularx}
+\usepackage{bm}
+\usepackage{makecell}
+
+\usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
+
+\usepackage[top=1.25in,bottom=1.25in,left=2in,right=2in]{geometry}
+\usepackage{enumitem}
+\newlist{steps}{enumerate}{1}
+\setlist[steps, 1]{leftmargin=3\parindent, label = Step \arabic*:}
+
+
+\usepackage{subfig}
+\usepackage{microtype}
+\usepackage{fullpage}
+\usepackage{xspace}
+\usepackage{tikz,color}  % Used for the extended footnotes if needed
+\definecolor{newblue}{rgb}{0.2,0.2,0.6}
+\usepackage[colorlinks,allcolors=newblue]{hyperref}
+\newcommand*{\vertbar}{\rule[-1ex]{0.5pt}{2.5ex}}
+\newcommand*{\horzbar}{\rule[.5ex]{2.5ex}{0.5pt}}
+\DeclareMathOperator{\E}{\mathbb{E}}
+
+\newcommand{\handout}[5]{
+   \renewcommand{\thepage}{#1-\arabic{page}}
+   \noindent
+   \begin{center}
+   \framebox{
+      \vbox{
+    \hbox to 5.78in { {\bf MATH 690: Topics in Probablity Theory} \hfill #2 }
+       \vspace{4mm}
+       \hbox to 5.78in { {\Large \hfill #5  \hfill} }
+       \vspace{2mm}
+       \hbox to 5.78in { {\it #3 \hfill #4} }
+      }
+   }
+   \end{center}
+   \vspace*{4mm}
+}
+
+\renewcommand{\paragraph}[1]{\medskip \noindent {\bf #1.}}
+
+\newcommand{\lecture}[4]{\handout{#1}{#2}{Lecturer: #3}{Scribe: #4}{#1}}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{prop}[theorem]{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{observation}[theorem]{Observation}
+\newtheorem{exercise}{Excercise}
+\newtheorem{Example}{Example}
+
+\newcommand{\example}[1]{\paragraph{Example #1}}
+
+\begin{document}
+\lecture{Dimension Reduction}{September 21, 2017}{Xiuyuan Cheng}{Oscar Li}
+\section{Introduction}
+In this lecture, we will
+\begin{itemize}
+	\item continue our discussion of Laplacian Eigenmap from last time;
+	\item introduce a similar dimensionality reduction algorithm \textit{Diffusion Map};
+	\item discuss some convergence results of eigenvalues and eigenvectors of the graph Laplacian $L$ to the eigenvalues and eigenfunctions of the \textit{Laplace-Beltrami operator} when the data points are sampled according to some distribution on the embedded manifold;
+	\item introduce our last dimensionality reduction algorithm for this topic \textit{tSNE}.
+\end{itemize}
+
+\section{Laplacian Eigenmap}
+We recall from last time that given a point cloud $\{\mathbf{x}_i\}_{i=1}^n$, the Laplacian Eigenmap algorithm first constructs a heat kernel $W \in \mathbb{R}^{n\times n}$, where $W_{ij} = \begin{cases}
+e^{-\frac{||\mathbf{x}_i - \mathbf{x}_i||^2}{\epsilon}}  \quad\text{if $i$ and $j$ are connected}\\ 0 \qquad \qquad \text{otherwise}.
+\end{cases}$.
+The connectedness between $\mathbf{x}_i$ and $\mathbf{x}_j$ is defined on the knn graph or $\epsilon$ graph (notice here this $\epsilon$ need not be the same $\epsilon$ used in $w_{ij}$'s computation) induced by the pairwise distances between the points. A simpler alternative is to use the adjacency matrix $A_{ij}$ of the knn or $\epsilon$ graph as the $W_{ij}$.
+
+Then we create a diagonal "degree" matrix $D \in \mathbb{R}^{n\times n}$, where $D_{ii} = \sum_{j=1}^{n} W_{ij}$. For simplicity, we will use $di$ in place of $D_{ii}$ for the following discussion. For practical cases, we will assume $D$ has full rank, i.e. no $d_i = 0$, from here.
+
+The \textit{graph Laplacian} is then defined as $L = D - W$, and the \textit{normalized graph Laplacian} defined as $L_{rw} = D^{-1}L = D^{-1}(D-W) = I - D^{-1}W$. We define matrix $P = D^{-1}W$ and we can think of P as the probability transition matrix of a random walk on the graph $Pr[X_{t+1} = j|X_t = i] = P_{ij} = W_{ij} / d_i,\; \forall t$. So the transition probability is affected by the proximity of neighbors: the closer you are to your neighbor, the more probable you'll transition to it in the next state. We also see now $L_{rw} = I - P$.
+
+Before we dive more into the dimensionality reduction algorithm, let's look into some properties and relationships of the matrices we just defined.
+
+\begin{prop}
+	L is positive semidefinite.
+\end{prop}
+\begin{proof}
+	\[\forall \mathbf{f} \in \mathbb{R}^n,\quad \mathbf{f}^{T}L\mathbf{f} = \frac{1}{2}\sum_{i,j}W_{ij}(f_i - f_j)^2 \geq 0, \;\; \text{where $f_i$ is the ith coordinate of $\mathbf{f}$.}\], 
+\end{proof}
+\begin{prop}
+	For any eigenvalue $\lambda$ of P, $\lambda$ is real and $|\lambda| \leq 1$.
+\end{prop}
+\begin{proof}
+	Let $A_s = D^{-1/2}WD^{-1/2}$. We see $A_s$ is a symmetric matrix because $D^{-1/2}$ and $W$ are symmetric. Thus by spectral theorem, $A_s$ has all real eigenvalues. We also observe that $P = D^{-1}W = D^{-1/2}D^{-1/2}WD^{-1/2}D^{1/2} = D^{-1/2}A_sD^{1/2}$, so P is similar to $A_s$.
+	Because similar matrices have the exact same set of eigenvalues, all the eigenvalues of P must also be real.
+	
+	Suppose $\boldsymbol{\psi}$ is an eigenvector of $P$ with eigenvalue $\lambda$. We choose $i$ s.t. $|\psi_i| \geq |\psi_j|, \quad\forall j = 1, ..., n$. Here $\psi_i$ means the ith coordinate of vector $\boldsymbol{\psi}$.
+	
+	$\lambda\psi_i = (P\psi)_i = \sum_{j=1}^{n}P_{ij}\psi_j$. Taking the absolute value of both sides and using triangle inequality, we have $|\lambda||\psi_i| = |\sum_{j}P_{ij}\psi_j| \leq \sum_{j}P_{ij}|\psi_j| \leq \sum_{j}P_{ij}|\psi_i| = |\psi_i|$. Since $\psi_i$ is the largest in absolute value, $\psi_i \neq 0$. Thus $|\lambda| \leq 1$.
+\end{proof}
+\begin{remark} (by the Scriber)
+	P is a right stochastic matrix. The right spectral radius of any right stochastic matrix is at most 1. But a matrix being right stochastic does not always imply all its eigenvalues are real. For example, $ A= \begin{bmatrix}
+	0 & 1 & 0\\ 0 & 0 & 1\\ 1 & 0 & 0
+	\end{bmatrix}$. P has all eigenvalues real specifically because of the symmetricity of $W$.
+\end{remark}
+After obtaining the normalized graph Laplacian $L_{rw}$, we compute its eigendecomposition. This is achievable because we have just proved that $P$ is similar to a symmetric matrix $A_s$ that is eigendecomposable by the spectral theorem. Since $L_{rw} = I - P$, we know $L_{rw}$ is decomposable.
+Let $\boldsymbol{\psi}_1, \boldsymbol{\psi}_2, ..., \boldsymbol{\psi}_n$ be the n eigenvectors of $L_{rw}$ with their corresponding eigenvalues $0 = \lambda_1 \leq \lambda_2 \leq ... \leq \lambda_n$.
+Then to compress the point clouds $\{\mathbf{x}_i\}_{i=1}^n$ into d-dimension, the eigenmap is defined as $\Psi(\boldsymbol{x}_i) = (\boldsymbol{\psi}_2(i), \boldsymbol{\psi}_3(i), ..., \boldsymbol{\psi}_{d+1}(i)) \in \mathbb{R}^d$, where $\boldsymbol{\psi}_j(i)$ means the ith coordinate of the vector $\boldsymbol{\psi}_j$.
+
+One way to find the eigenvectors for $L_{rw}$ is to find the eigenvectors of $P$ ($P$ and $L_{rw}$ have the same eigenvectors) through the eigendecomposition of $A_s$. Because $A_s$ is symmetric and have the same eigenvalues as $P$ due to similarity, we can find an orthonormal basis of eigenvectors ${\boldsymbol{u}_1, \boldsymbol{u}_2, ... , \boldsymbol{u}_n}$ with corresponding eigenvalues $1 = \lambda_1 \geq \lambda_2 \geq ... \geq \lambda_n \geq -1$. We write this succinctly as $A_s = U\Lambda U^T$, where $U$ is an orthogonal square matrix whose ith column is $\boldsymbol{u}_i$ and $\Lambda$ is a diagonal matrix with decreasing eigenvalues on the diagonal. We let matrix $\Psi = D^{-1/2}U$ and see that
+\begin{equation}
+\label{eigen}
+P\Psi = D^{-1/2}A_sD^{1/2}D^{-1/2}U = D^{-1/2}U\Lambda U^TU = D^{-1/2}U\Lambda = \Psi\Lambda
+\end{equation}
+We see from Equation \ref*{eigen} that every column of $\Psi$ must be an eigenvector of $P$ and the set of all column vectors forms an eigenbasis of $P$.
+\begin{equation}
+L_{rw}\Psi = (I - P)\Psi = (I - \Lambda)\Psi
+\end{equation} shows that the columns of $\Psi$ are already sorted increasingly according to their corresponding eigenvalues in $L_{rw}$. So $\Psi$ gives us the eigenvectors we want in the algorithm.
+\begin{remark}
+We can similarly define a matrix $\Phi = D^{1/2}U$ and see that the following is true:
+	\begin{align}
+	\Phi &= D\Psi \label{relationship}\\
+	\Phi^T\Psi &= I \label{phipsi}\\
+	\Phi\Psi^T &= I\\
+	P &= \Psi \Lambda \Phi^T \label{P}\\
+	\Psi^T D \Psi &= I \label{psiDpsi}\\
+	P^T \Phi &= \Phi \Lambda \label{left-eigen}
+	\end{align}
+We see from Equation \ref{left-eigen} that the columns of $\Phi$ are the eigenvectors of $P^T$. Then the first column of $\Phi$, $\boldsymbol{\phi}_1$, is an eigenvector of $P^T$ with eigenvalue 1. From Equation \ref{relationship} we see that $\boldsymbol{\phi}_1 = D \boldsymbol{\psi}_1$. Because $P$ is a right stochastic matrix, the first eigenvector of $P$, $\boldsymbol{\psi}_1$, must have all the coordinates the same, i.e. $\psi = \begin{bmatrix}c\\.\\.\\.\\c\end{bmatrix}$. As a result, $\boldsymbol{\phi}_1 = c\begin{bmatrix}
+d_1\\.\\.\\.\\d_n
+\end{bmatrix}$. This implies that the invariant measure (stationary distribution) $\boldsymbol{\pi}$ of the random walk specified by $P$ satisfies that $\pi_j = \frac{d_j}{\sum_{i=1}^{n}d_{i}}$ due to a normalization of $\boldsymbol{\phi}_1$.
+\end{remark}
+
+\section{Diffusion Map}
+Diffusion Map is a similar dimensionality reduction algorithm as Laplacian Eigenmap. For some fixed $t>0$, the diffusion map $\Psi_t^d(\boldsymbol{x}_i) = ({\lambda_{2}}^t\boldsymbol{\phi}_2(i), ..., (\lambda_{d+1})^t\boldsymbol{\phi}_{d+1}(i))$ compresses every $\boldsymbol{x}_i$ to a d-dimensional vector. $\boldsymbol{\phi}_{j}$ denotes the same vector as in the previous section, and $\lambda_j$ is the jth largest eigenvalues of P, i.e. $1 = \lambda_1 \geq \lambda_2 \geq ... \geq \lambda_n$.
+\begin{definition}
+	The diffusion distance between $\boldsymbol{x}_i$ and $\boldsymbol{x}_j$ is defined as $D_t(\boldsymbol{x}_i, \boldsymbol{x}_j)$, where $D_t^2(\boldsymbol{x}_i, \boldsymbol{x}_j) = ||\Psi_t^{n-1}(\boldsymbol{x}_i) - \Psi_t^{n-1}(\boldsymbol{x}_j)||^2$
+\end{definition}
+\begin{remark}
+	Suppose $|\lambda_k| \searrow 0$ as $k$ $\uparrow$, then when t is large, $D_t^2(\boldsymbol{x}_i, \boldsymbol{x}_j) \approx ||\Psi_t^{d}(\boldsymbol{x}_i) - \Psi_t^{d}(\boldsymbol{x}_j)||^2$
+\end{remark}
+\begin{prop}
+\label{diffusion}
+If we think of $P$ as the transition probability matrix for the random walk $\{X_t\}_{t=1}^\infty$ on the graph indices, meaning $(P^t)_{ij} = Pr[X_{s+t} = j | X_s = i],\; \forall s$, then $D_t^2(\boldsymbol{x}_i, \boldsymbol{x}_j) = ||(P^t)_{i,:} - (P^t)_{j,:}||_w^2$, where $(P^t)_{i,:}$ means the ith row vector of $P^t$ and the squared norm on the right hand side is a weighted $L^2$ norm where $w_k = \frac{c}{d_k}, \;\forall k$ for some fixed c.
+\end{prop}
+\begin{remark}
+When the graph is connected, $\lambda = 1$ is of multiplicity 1. From Equation \ref{P} and \ref{phipsi}, we know $P^t = \Psi \Lambda^t \Phi^T$. As $t \rightarrow \infty$, only the first eigenvalue which is equal to 1 survives in $\Lambda^t$. As a result, $\lim_{t \rightarrow \infty} P^t = \boldsymbol{\psi}_1\boldsymbol{\phi}_1^T$. Because every coordinate in $\boldsymbol{\psi}_1$ is the same, by the Proposition above, the diffusion distance would become zero for any pair of $\boldsymbol{x}_i$ and $\boldsymbol{x}_j$ as $t \rightarrow \infty$.
+\end{remark}
+\begin{proof}[Proof of Proposition \ref{diffusion}]
+\begin{equation}
+	(P^t)_{il} = \sum_{k=1}^{n}\lambda_k^t\boldsymbol{\psi}_k(i)\boldsymbol{\phi}_k(l) = \sum_{k=1}^{n}\lambda_k^t\boldsymbol{\psi}_k(i)\boldsymbol{\psi}_k(l)d_l
+\end{equation}
+\begin{equation}
+\sum_{l=1}^{n}((P^t)_{il} - (P^t)_{jl})^2w_l = ... = \sum_{l,l'} [\lambda_{l}^t \lambda_{l'}^t (\boldsymbol{\psi}_l(i) - \boldsymbol{\psi}_l(j))(\boldsymbol{\psi}_{l'}(i) - \boldsymbol{\psi}_{l'}(j)) \sum_{k} \boldsymbol{\psi}_l(k) \boldsymbol{\psi}_{l'}(k)d_k]
+\end{equation}
+We see from Equation \ref{psiDpsi} that $\boldsymbol{\psi}_l^T D \boldsymbol{\psi}_{l'} = \delta_{ll'}$. Therefore,
+\begin{equation}
+\sum_{l=1}^{n}((P^t)_{il} - (P^t)_{jl})^2w_l = \sum_{l=1}^{n}\lambda_l^{2t}(\boldsymbol{\psi}_l(is)- \boldsymbol{\psi}_l(j))^2 = D_t^2(\boldsymbol{x}_i, \boldsymbol{x}_j)
+\end{equation}
+\end{proof}
+
+\section{Convergence of Eigenmap}
+\begin{definition}
+Let $(M, g)$ be a compact Riemannian manifold with no boundary, the \textit{Laplace-Beltrami operator} on M is defined as: $\Delta_M: C^2(M) \rightarrow L^2(M),\quad \Delta_M(f) = -div(\nabla f)$.
+\end{definition}
+\begin{remark}
+We state some properties of the Laplace-Beltrami operator:
+\begin{itemize}
+\item $\Delta_M$ is a linear operator that is positive semidefinite with a discrete spectrum of eigenvalues $\{\lambda_k\}, 0 \leq \lambda_1 \leq \lambda_2 \leq ... $;
+\item all eigenfunctions of $\Delta_M$ are in $C^\infty(M)$.
+\item the operator is "intrinsic" -- it only sees the inner product $g$ but not the specific embedding space.
+\end{itemize}
+\end{remark}
+\begin{theorem}
+If the point cloud $\{\mathbf{x}_i\}_{i=1}^n$ is i.i.d. sampled uniformly from the manifold $M$ and $\epsilon$ properly set, as $n \rightarrow \infty$,  for each $k$,
+$\widehat{\lambda_{k}} \rightarrow \lambda_{k}$ and $\widehat{\boldsymbol{\psi}_k} \rightarrow \boldsymbol{\psi}$ in probability, where $\widehat{\lambda_{k}}$ and $\widehat{\boldsymbol{\psi}_k}$ is the kth eigenvalue-eigenvector pair of the \textcolor{red}{normalized?} graph Laplacian, while $\lambda_{k}$ and $\boldsymbol{\psi}_k$ is the kth eigenvalue-eigenfunction pair of the Laplace-Beltrami operator. More precisely, $\widehat{\boldsymbol{\psi}_k} \rightarrow \boldsymbol{\psi}$ means $\widehat{\boldsymbol{\psi}_k}(i) \rightarrow \boldsymbol{\psi}_k(\boldsymbol{x}_i), \;\; \forall i=1 \; ,...,\; n$.
+\end{theorem}
+\begin{remark}
+When the point cloud is not uniformly sampled from M but instead sampled from a distribution $p$, the convergence result is as follows:
+\begin{equation}
+\lim_{n\rightarrow \infty, \epsilon \rightarrow 0} L_{n,\epsilon} \rightarrow -\frac{\epsilon}{2}(\Delta_M + 2\frac{\nabla p}{p} \cdot \nabla) + O(\epsilon^2)
+\end{equation}
+\end{remark}
+
+\section{tSNE}
+tSNE is the last dimensionality reduction technique we will introduce in this topic. It can achieve good results on real-life datasets such as MNIST. However, there is not a lot of theoretical result behind this method.
+
+tSNE works as follows: for a point cloud $\{\mathbf{x}_i\}_{i=1}^n$,
+\begin{steps}
+\item For $i \neq j$, let $W_{ij} = e^{-\frac{||\boldsymbol{x}_i-\boldsymbol{x}_j||^2}{2\sigma_i}}$, where $\sigma_i$ is tuned for each $\boldsymbol{x}_i$. For $i = j$, $W_{ii} = 0$.
+
+Let $P$ be such that $P_{ij} = \frac{W_{ij}}{\sum_{j'=1}^{n}W_{ij'}}$, and initialize $\overline{P} = \frac{P+P^T}{2}$. Now $\overline{P}$ is symmetric.
+
+\item We want to fit $Y \in \mathbb{R}^{d \times n}$, whose ith column is $\boldsymbol{y}_i$, to have the same transition probability matrix $Q_{ij}[Y]$ as $\overline{P}_{ij}$, where $Q_{ij}[Y] = \frac{k(||\boldsymbol{y}_i - \boldsymbol{y}_j||)}{\sum_{i'\neq j'} k(||\boldsymbol{y}_{i'} - \boldsymbol{y}_{j'}||)}$, $k(x) = \frac{1}{1+x^2}$.
+
+The loss function $C(Y)$ is formulated using KL-divergence and the optimization for $Y$ is as follows:
+\[\min_{Y}C(Y) = \sum_{i \neq j}\overline{P}_{ij}log\frac{\overline{P}_{ij}}{Q_{ij}}\].
+\end{steps}
+\end{document}
