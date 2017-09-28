@@ -1,1 +1,143 @@
+\documentclass[12pt]{article}
 
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{amsmath, amssymb, amsthm, amsfonts, tikz, algpseudocode}
+\usepackage[plain]{algorithm}
+\usepackage[framemethod=default]{mdframed}
+
+\theoremstyle{plain}
+\newtheorem*{theorem}{Theorem}
+\newtheorem*{lemma}{Lemma}
+\newtheorem*{claim}{Claim}
+\newtheorem*{definition}{Definition}
+\newtheorem*{corollary}{Corollary}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\eig}{eig}
+
+%%%% TITLE
+
+\title{Math 690: Topics in Data Analysis and Computation \\
+Lecture notes for September 26, 2017}
+\date{}
+
+\author{Scribed by Dev Dabke and Andrew Cho}
+
+\begin{document}
+\maketitle
+
+\section{Background}
+Recall the convergence of eigenmap
+% TODO: Fix this
+\[
+L_{n, \epsilon} \xrightarrow{n\to\infty} L_{\epsilon} \xrightarrow{\epsilon \to 0} L
+\]
+\[
+L_{\epsilon} \epsilon\to 0 f \to Lf
+\]
+for each $ f $.
+\\ \\
+What we need for $ \eig{L_{\epsilon}} \to \eig{L} $.
+\\ \\
+Check
+\[
+\sup { \| L_{\epsilon} f - L f \| } \to 0
+\]
+where $ f \in C^2 (M) $ and $ \| f \|_2^2 = 1 $
+where the norm is induced
+\[
+\int_M {f(x)}^2 dp(x) = 1
+\]
+is unfortunately not true.
+Ref Belkin-Niyogi 2006.
+\\ \\
+$ t = \frac{1}{2} \epsilon $
+with
+\[
+L_t = \frac{I_{\alpha} - H_t}{t} + R_t
+\]
+\[
+H_t f(x) = u(x, t)
+\]
+defined as
+\[
+\begin{cases}
+    \partial_t u(x, t) &= \Delta_M u(x, t) \\
+    u(x, 0) &= f(x)
+\end{cases}
+\]
+As a result, we have that the residual $ \| R_t \| $ can be controlled properly
+which implies that $ \eig{L_t} = \eig{( \frac{I_d - H_t}{t} )} $
+and $ H_t f = e^{-t \Delta_M} f $
+\\ \\
+As an aside, note that for $ y'(t) = -at \implies y = e^{-at} y(0) $.
+\\ \\
+Additionally
+\[
+\frac{1 - e^{-t\lambda_k}}{t} \xrightarrow{t \to 0} \lambda_k
+\]
+Anyways, note that
+\[
+H_t f = e^{-t \Delta_M} f
+\]
+such that $ \Delta_M : \{ \lambda_k, \psi_k \}_k $
+and that $ H_t : \{ e^{-t \lambda_k}, \psi_k \}_k $
+such that $ k = 1, \ldots, d $
+\\ \\
+Remark that when $ p(x) $ is not uniform then
+\[
+L_{n, \epsilon} \to L_{FK}
+\]
+where $ L_{FK} f = \Delta_M f - \nabla u \dot \nabla f $
+and noting that $ p(x) = e^{-\frac{1}{2} u(x)} $
+(Fokker-Plank) that $ u(x) = -2 \log{p(x)} $
+\\ \\
+We have to perform a ``correction'' of density
+\[
+W_{ij} = k(x_i, x_j)
+\]
+and let
+\[
+d_i = \sum_{j} k(x_i, x_j)
+\]
+where we perform the correction by defining
+\[
+\widetilde{k} (x, y) = \frac{k(x, y)}{\sqrt{d(x)} \sqrt{d(y)}}
+\]
+and
+\[
+d(x) = \int_M k(x, y) p(y) dy
+\]
+is the degree function. However, we can never take a continuous integral in practice, so we instead compute
+\[
+d_R (x) = \frac{1}{n} \sum_{j = 1}^n k(x, x_j) \xrightarrow{n \to \infty} d(x)
+\]
+and we let
+\[
+\widetilde{W_{ij}} = \frac{W_{ij}}{\sqrt{d(x)} \sqrt{d(y)}}
+\]
+and we should consider the eigenmap from $ \widetilde{W} $ instead of $ W $.
+\\ \\
+We consider the matrix $ \widetilde{L}_{rw} = I - \widetilde{D}^{-1} \widetilde{W} $ where
+\[
+\widetilde{D}_{ij} = \sum_j \widetilde{W}_{ij}
+\]
+and we have that
+\[
+\widetilde{L}_{n, \epsilon} \xrightarrow{n \to \infty \\ \epsilon \to \infty} \Delta_M
+\]
+The proof is omitted, but hint: as $ \epsilon \to 0, \, d_{\epsilon} (x) \approx p(x) \cdot \text{constant} $.
+Therefore, we have that
+\[
+\widetilde{L}_{\alpha} = \frac{W_{ij}}{d_i^{\alpha} d_j^{\alpha}}
+\]
+where $ \alpha = \frac{1}{2} $.
+\\ \\
+Finally, note that
+\[
+k_{\epsilon} (x, y) = e^{= \frac{\| x - y \|^2}{2 \epsilon}}
+\]
+and
+\[
+d_{\epsilon} (x) = \int_M k_{\epsilon} (x, y) p(y) dy \approx p(x)
+\]
+\end{document}
