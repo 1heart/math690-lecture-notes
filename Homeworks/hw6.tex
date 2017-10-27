@@ -1,0 +1,80 @@
+\documentclass[english]{article}
+
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+
+\usepackage{babel}
+
+\usepackage{mathptmx}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{color}
+
+\newcommand{\Tr}{{\bf Tr}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\N}{\mathcal{N}}
+%\newcommand{\Pr}{ \text{Pr} }
+
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{conject}{Conjecture}[section]
+
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{corollary}{Corollary}[section]
+\newtheorem{proposition}{Proposition}[section]
+
+
+%% Choose one of the following (if not choosing the  
+%% default, viz., Computer Modern, font family):
+ %\usepackage{lmodern}
+ %%
+ %\usepackage{mathpazo}
+% \usepackage[theoremfont]{newpxmath} \usepackage{newpxmath}
+ %\usepackage{kpfonts}
+ %%
+ %\usepackage{mathptmx}
+ %\usepackage{times,mtpro2}
+ %\usepackage{stix}
+ %\usepackage{txfonts}
+ %\usepackage{newtxtext,newtxmath}
+ %%
+ 
+ %\usepackage{libertine} \usepackage[libertine]{newtxmath}
+ 
+ %\usepackage{newpxtext} \usepackage[euler-digits]{eulervm}
+
+
+\begin{document}
+
+\title{Math 690 F2017: Topics in Data Analysis and Computation\\
+Homework 6}
+
+\author{Xiuyuan Cheng}
+\date{}
+
+\maketitle
+
+\begin{enumerate}
+
+\item
+
+Using concentration argument, finish the proof of the upper bound of the Johnson-Lindenstrauss lemma.
+The proof is given in [DG03].
+
+\item
+
+Study the concentration of $\lambda_2$, the second smallest eigenvalue, of the normalized graph laplacian of an Erdos-Renyi random graph $G(n,p)$, i.e. the graph has $n$ nodes and the probability of $A_{ij}=1$ equals $p \in (0,1)$. We know that when the graph is connected (which happens almost surely if $p > (1+\epsilon)\frac{ \log n }{n}$, as proved in the classical work of Erdos and Renyi in 1960), $0< \lambda_2 < 2$.
+
+(1) Let $p$ be fixed constant, and $n$ increases. What is the limiting statistics of $\lambda_2$ like? (Hint: $\lambda_2 \to a$ for some constant $a$, and after properly centering and rescaling $(\lambda_2 - a)$ converges to a limiting distribution.)
+
+(2) What happens if $p$ decreases with $n$, e.g. $p = \alpha \frac{\log n }{n }$ for $\alpha > 1$? Numerically observe the distribution of $\lambda_2$ in this case.
+
+\end{enumerate}
+
+\end{document}
