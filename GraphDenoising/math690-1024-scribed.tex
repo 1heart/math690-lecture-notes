@@ -1,0 +1,144 @@
+\documentclass[11pt,letter]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{fullpage}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{bbm}
+\makeatletter
+\renewcommand*\env@matrix[1][*\c@MaxMatrixCols c]{%
+  \hskip -\arraycolsep
+  \let\@ifnextchar\new@ifnextchar
+  \array{#1}}
+\makeatother
+
+\onehalfspacing
+
+\begin{document}
+
+\title{MATH 690: Lecture Scribing}
+
+\author{Xiuyuan Cheng, Scribing: Weiyao Wang}
+
+\date{Oct.24, 2017}
+
+\maketitle
+
+\section{Summary}
+
+In today's lecture, we covered three parts. We first reviewed the topic on graph denoising and made two remarks on the method we discussed previously. Then we discussed the topic on graph synchronization, with three different examples covered. Finally, we gave a brief introduction the our fifth topic of the course, concentration of measure.
+
+\section{Review: Graph Denoising}
+
+The problem setting is given graph $G=(V,E)$, with $|V|=n$, and a function $f: v\to R$, $f\in R^n$, and $f$ is smooth on the graph (i.e. $f^T(D-W)f < \delta$). We are given $x=f+\epsilon$, a situation with noise. Our method is to give an estimator, $\tilde{f}=Px$, where $\tilde{f_i}=\sum_{j=1}^n P_{ij}x_j$, where $P=D^{-1}W$ and $\sum_{j=1}^nP_{ij}=1$.
+
+\subsection{Remark One: Spectral Filtering}
+
+From our previous discussion, we may write $P=\Psi \Lambda \Phi^T$, and thus $Px=\sum_{k} \lambda_k \psi_k <\phi_k,x>$, where a generalized version can be written as $\sum_k f(\lambda_k)<\phi_k,x>\psi_k$. The signal-to-noise ratio (SNR) for each $k$ is $SNR_k=\frac{|c_k|^2}{\sigma^2} \to f(\lambda)$. In case that we have more prior knowledge of $SNR_k$, we can design the filter function $f(\lambda)$ accordingly. 
+
+\subsection{Remark Two: Optimal Denoising Strategy with Wavelet Shrinkage}
+
+$P_x$: global Fourier Transform, and can we do for local basis?
+
+$G:$ mesh on some continuous domain, $g:[0,1]\subset R^1$. And we introduce the 'optimal' denoising strategy $\to$ wavelet shrinkage:
+\begin{eqnarray}
+x &\to & c_k(x), wavelet\ transform\ x \sim \sum_kc_k(x)\psi_k \nonumber \\
+&\to & change\ c_k\ to\ be\ T_{\delta}(c_k)=\tilde{c_k}\ to\ get\ rid\ of\ the\ small\ terms \nonumber \\
+&\to & \tilde{x}\sim \sum_{k} \tilde{c_k}\psi_k
+\end{eqnarray}
+
+\section{Synchronization: $G=(V,E)$}
+
+\subsection{$Z_2$ Synchronization}
+
+Goal: recover unknown signs ($z_i \in \{1,-1\}$) on $V$, up to a global sign-flip from pairwise measurement on $E$:
+
+if $(i,j)\in E$, $G_{ij}=z_iz_j=\pm1$, positive if $z_i=z_j$ and negative otherwise. A simple example would be friend and enemy relationships.
+
+For $A$ as the adjacency matrix of $G$, define matrix $G=(zz^T) \odot A$, where $\odot$ is the Hadamard product, defined for $A,B$, two $n*n$ matrices, where $(A\odot B)_{ij}=A_{ij}B_{ij}$.
+
+If there is no noise and the graph is connected, then we may solve the problem easily by fixing a point to start with, then traverse the graph and assign signs according to the relationship on $E$.
+
+\subparagraph{Situation With Noise:}
+
+We have 
+\begin{equation}
+G_ij = 
+	\begin{cases}
+		z_iz_j,\ (i,j)\in E \\
+		Bern(\frac{1}{2}),\ o.t.
+	\end{cases}
+	=
+	\begin{cases}
+		z_iz_j,\ A_{ij}=1 \\
+		w_{ij},\ A_{ij}=0
+	\end{cases}
+	\text{where}\ w_{ij}=
+	\begin{cases}
+		1 \text{with probability 0.5},\ i<j, \text{i.i.d}\\
+		-1 \ o.t.
+	\end{cases}
+\end{equation}
+
+Thus, we have $G=(zz^T)\odot A+W\odot (\mathbf{1}\mathbf{1}^T-A)$
+
+The task is for given $G$, we need to recover $z$ with a global sign flip. The method would be take the first eigenvector of $G$, $v_1$, and have $\tilde{z_i}=sign(v_1)_i$
+
+Given $A$, a random matrix, $i<j$, i.i.d, a matrix that determines the correctness of information. 
+\begin{equation}
+A = \begin{cases}
+	1\ \text{w.p.}\ p \\
+	0\ \text{w.p.}\ 1-p
+	\end{cases}
+\end{equation}
+
+We have $pzz^T$ with rank $1$, $\lambda = pn$. And we have $E_AG=zz^T\odot EA+w\odot E(\mathbf{1}\mathbf{1}^T-A) = p(zz^T)+(1-p)W$
+
+For $(1-p)W$, we have $|(1-p)W|\leq O(\sqrt{n})$, since $c\sqrt{n}$ where $c=(1-p)\sqrt{Var(w_{ij})}*2\leq (1-p)*2$
+
+\subparagraph{Remark: SDP relaxation of the problem}
+
+Problem setting:
+\begin{enumerate}
+\item $max_X<G,X>$ s.t. $X\succeq 0$ and $\forall i$, $X_{ii}=1$ 
+\item $<G,X>=Tr(GX)$, $X^*=zz^T$, and thus $Tr(GX^*)=Tr(Gzz^T)=z^TGz$
+\item constraints: $x_{ii}=z_i^2=1$ and $rank(x)=1$ (relaxed)
+\end{enumerate}
+
+\subsection{$S^1$ Synchronization}
+
+We assign time $t_i \in [0,2\pi]$ to each vertex to replace the sign. We observe 
+\begin{equation}
+\theta_{ij} = \begin{cases}
+	t_i-t_j,\ \text{w.p.}\ p\\
+	Uniform([0,2\pi]),\ \text{w.p.}\ 1-p
+\end{cases}
+\end{equation}
+
+Then for pairwise relationship, we can have $e^{i(t_i-t_j)} = (e^{it_i})(e^{-it_j})=z_i\bar{z_j}$, where $z_i=e^{it_i}$. Consider the information matrix $z\in C^{n}$, we have $(zz^*)_{ij}=z_iz_j$, and $G_{ij}=e^{i\theta_{ij}}$, and $G=(zz^*)\odot A+W\odot (\mathbf{1}\mathbf{1^T}-A)$, where $w_{ij}=e^{ig_{ij}}$, and $g_{ij}\sim U[0,2\pi]$, i.i.d for $i<j$. And then we may follow the similar analysis as the first case for $Z_2$.
+
+\subsection{$SO(3)$ Synchronization}
+To recover $R_1,...,R_n$, unknown rotations (3*3 matrices).
+Given observations $(i,j)$, $R_i^{-1}R_j$, we have a rank 3 matrices in the form:
+\[
+\begin{bmatrix}
+R_1^T \\
+R_2^T \\
+... \\
+R_n^T
+\end{bmatrix}
+\begin{bmatrix}
+R_1 & R_2&...&R_n
+\end{bmatrix}
+\]
+In this case, fraction of correct measurement $P\sim \frac{1}{\sqrt{n}}$, similar to previous examples.
+
+\section{Topic 5: Concentration of Measure}
+
+Concentrate: Control of the probability of "bad events", the tail part
+Given $X$, a random variable, we hope to have $Pr[|X-EX|>\alpha]\leq ?$, controlling the tail. For example, in the previous topic, we may set $x=\lambda_1(W)$
+
+\end{document}
