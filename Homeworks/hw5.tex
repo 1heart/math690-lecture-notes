@@ -1,0 +1,103 @@
+\documentclass[english]{article}
+
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+
+\usepackage{babel}
+
+\usepackage{mathptmx}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{color}
+
+\newcommand{\Tr}{{\bf Tr}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\N}{\mathcal{N}}
+%\newcommand{\Pr}{ \text{Pr} }
+
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{conject}{Conjecture}[section]
+
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{corollary}{Corollary}[section]
+\newtheorem{proposition}{Proposition}[section]
+
+
+%% Choose one of the following (if not choosing the  
+%% default, viz., Computer Modern, font family):
+ %\usepackage{lmodern}
+ %%
+ %\usepackage{mathpazo}
+% \usepackage[theoremfont]{newpxmath} \usepackage{newpxmath}
+ %\usepackage{kpfonts}
+ %%
+ %\usepackage{mathptmx}
+ %\usepackage{times,mtpro2}
+ %\usepackage{stix}
+ %\usepackage{txfonts}
+ %\usepackage{newtxtext,newtxmath}
+ %%
+ 
+ %\usepackage{libertine} \usepackage[libertine]{newtxmath}
+ 
+ %\usepackage{newpxtext} \usepackage[euler-digits]{eulervm}
+
+
+\begin{document}
+
+\title{Math 690 F2017: Topics in Data Analysis and Computation\\
+Homework 5}
+
+\author{Xiuyuan Cheng}
+\date{}
+
+\maketitle
+
+\begin{enumerate}
+
+\item
+
+(Non-local means)
+Apply non-local means to the problem of (patch based) image denoising, and consider the following modifications
+
+(i) Self-tuning of the $\sigma$ in heat kernel: let 
+\[
+W_{ij} = \exp \{ -\frac{ \| x_i - x_j\|^2}{ 2 \sigma_i \sigma_j}\},
+\]
+where $\sigma_i$ equals the distance of the $k$-the nearest neighbor of data point $x_i$.  The parameter $k$ is set to be a constant, e.g. $k=10$. 
+
+(ii) The combination of both local and non-local means: let 
+\[
+W_{ij} = \exp \{ -\frac{ \| x_i - x_j\|^2}{ 2 \sigma_i \sigma_j}\}
+              \cdot   \exp \{ -\frac{ \| u_i - u_j\|^2}{ 2 \sigma^2}\}
+\]
+where $u_i$ stands for the position of the center pixel of the patch on the 2D grid.
+
+What are the effects of these modifications? Compare the performance with e.g. PCA.
+
+\item
+
+($\mathbb{Z}_2$ synchronization) 
+The problem is to recover some arbitrary signs $\{z_i\}_{i=1}^n$ on $n$ nodes, $z_i = \pm 1$, from $\frac{n(n-1)}{2}$ noise-corrupted observations: when $i<j$,
+\[
+G_{ij} = \begin{cases}
+ z_iz_j, & \quad \text{ with prob. $p$},\\
+ W_{ij}, & \quad \text{ with prob. $1-p$},
+\end{cases}
+\]
+and $G_{ij}=G_{ji}$, $G_{ii} =1$, and $W$ is a symmetric matrix consisting of i.i.d. random signs, i.e. $W_{ij} = \pm 1 $ with prob. $\frac{1}{2}$.
+Apply spectral methods, i.e. using the eigenvector associated with the largest eigenvalue, 
+to the problem, and study how the successful sign recovery depends on the correct-observation rate $p$ and the number of nodes $n$.
+
+
+
+\end{enumerate}
+
+\end{document}

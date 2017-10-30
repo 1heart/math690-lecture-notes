@@ -1,0 +1,218 @@
+\documentclass[11pt]{article}
+\usepackage{latexsym}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsthm,calc}
+\usepackage{euscript}
+\usepackage{mathpazo}
+\usepackage{mathtools}
+\usepackage{tabularx}
+\usepackage{bm}
+\usepackage{makecell}
+
+
+\usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
+
+\usepackage[top=1.25in,bottom=1.25in,left=2in,right=2in]{geometry}
+\usepackage{enumerate}
+\usepackage{subfig}
+\usepackage{microtype}
+\usepackage{fullpage}
+\usepackage{xspace}
+\usepackage{tikz,color}  % Used for the extended footnotes if needed
+\definecolor{newblue}{rgb}{0.2,0.2,0.6}
+\usepackage[colorlinks,allcolors=newblue]{hyperref}
+\newcommand*{\vertbar}{\rule[-1ex]{0.5pt}{2.5ex}}
+\newcommand*{\horzbar}{\rule[.5ex]{2.5ex}{0.5pt}}
+\DeclareMathOperator{\E}{\mathbb{E}}
+
+\newcommand{\handout}[5]{
+   \renewcommand{\thepage}{#1-\arabic{page}}
+   \noindent
+   \begin{center}
+   \framebox{
+      \vbox{
+    \hbox to 5.78in { {\bf MATH 690: Topics in Probablity Theory} \hfill #2 }
+       \vspace{4mm}
+       \hbox to 5.78in { {\Large \hfill #5  \hfill} }
+       \vspace{2mm}
+       \hbox to 5.78in { {\it #3 \hfill #4} }
+      }
+   }
+   \end{center}
+   \vspace*{4mm}
+}
+
+\renewcommand{\paragraph}[1]{\medskip \noindent {\bf #1.}}
+%redefined math symbols taking arguments
+\renewcommand\mod[1]{\ (\mathrm{mod}\ #1)}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{note}{Note}
+
+
+\newcommand{\lecture}[4]{\handout{#1}{#2}{Lecturer: #3}{Scribe: #4}{#1}}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+
+\theoremstyle{definition}
+\newcommand\PP{\mathbb{P}}
+\newcommand\EE{\mathbb{E}}
+\newcommand{\example}[1]{\paragraph{Example #1}}
+
+\begin{document}
+
+\lecture{Concentration of Measure}{October 26, 2017}{Xiuyuan Cheng}{Xiangying Huang}
+\section{Introduction}
+It is known from the central limit theorem (CLT) that given $X_1,X_2,\dots,X_n i.i.d$ with $\EE X_i=0$ and $Var(X_i)=\sigma^2$, we have
+$$\frac{\sum_{i=1}^n X_i}{\sigma\sqrt{n}} \Rightarrow \mathcal{N}(0,1) \text{ in distribution.}$$
+Write $S_n=\sum_{i=1}^n X_i$, $S_n \sim O(\sqrt{n})$. 
+\begin{remark}
+Notice that if $X_1,X_2,\dots,X_n$ are not mutually independent, then $S_n$ does not necessarily scale like $O(\sqrt{n})$. For example, when $X_1=X_2=\dots=X_n$, $S_n\sim O(n)$.
+\end{remark}
+
+While CLT ensures the convergence of $S_n$ in distribution, it does not give information on the rate of convergence, which is the main topic of this lecture. In terms of $S_n$, we want a result of the form
+$$\PP(|S_n-\EE S_n|> \alpha)\leq ?$$
+where $\alpha \sim O(\sqrt{n})$.
+
+More generally, given a function $F(X_1,X_2,\dots,X_n)$, we want to bound the probability 
+$$\PP(|F(X_1,X_2,\dots,X_n)-\EE F(X_1,X_2,\dots,X_n)|>\alpha)\leq ?$$
+
+To motivate the study of concentration of measure, we list three applications of it:
+
+\begin{enumerate}
+\item \textbf{Johnson-Lindenstrauss Lemma}
+\begin{lemma}Johnson-Lindenstrauss Lemma.
+
+Given a set $X$ of $n$ points in $\mathbb{R}^D$, $0<\varepsilon<1$, and a number $\displaystyle d>\frac{8\ln n}{\varepsilon^2}$, there exists a linear map $f:\mathbb{R}^D\to \mathbb{R}^d$ such that
+$$(1-\varepsilon)\norm{u-v}\leq \norm{f(u)-f(v)}\leq (1+\varepsilon)\norm{u-v}$$
+for all $u,v\in X$.
+\end{lemma}
+
+\begin{remark}
+$f\cdot u=\sqrt{\frac{D}{d}}P\cdot u$, where $P$ is a projection to a $d$-dimensional subspace and $u\in \mathbb{R}^D$.
+\end{remark}
+
+See \cite{johnson} for a proof.
+
+\item \textbf{Fast randomized SVD}
+
+Let $G$ be a $n\times k$ matrix where $k<<n$, $G{ij}\sim \mathcal{N}(0,1) \hspace{1ex}i.i.d$ and $G$ is well-conditioned. Let $u,v$ be different columns of the normalized matrix $\frac{G}{\sqrt{n}}$. We have
+\begin{enumerate}
+\item $\EE\norm{u}^2=1$
+\item $\EE u^Tv=0$
+\end{enumerate} 
+Hence, $\frac{G}{\sqrt{n}}$ has ``almost" orthonormal columns and singular values close to 1. 
+
+\item \textbf{Spectral norm of Wigner matrices}
+\end{enumerate}
+
+\section{Preliminaries}
+\begin{lemma} Markov Inequality
+
+Let $X$ be a non-negative random variable with $\EE X<\infty$. Then, for $\alpha>0$,
+$$\PP(X>\alpha)\leq \frac{\EE X}{\alpha}$$
+\end{lemma}
+
+\begin{proof}
+$\EE X = \EE [X(1_{X>\alpha}+1_{X\leq\alpha})]\geq \EE[X(1_{X>\alpha}]\geq \EE [\alpha1_{X>\alpha}]=\alpha\PP(X>\alpha)$
+\end{proof}
+\begin{corollary}Chebyshev's Inequality.
+$$\PP(|X-EX|>\alpha)\leq \frac{Var(X)}{\alpha^2}$$
+\end{corollary}
+
+
+\section{Key Idea}\label{key}
+Our goal is control the large deviation of $S_n$. Let us first consider the most basic case, where $X_1,X_2,\dots,X_n$ are $i.i.d$. (Constraints on identical distribution or independence can be relaxed.)
+
+For $t>0$,
+$$\PP(S_n>\alpha)=\PP(e^{tS_n}>e^{t\alpha})\leq \frac{E(exp(tS_n))}{e^{t\alpha}}.$$
+Hence it suffices to give an upper bound of $E(exp(tS_n))$. By $i.i.d$ property of $\{X_i\}$,
+\begin{align*}
+\EE[exp(tS_n)]
+&=\EE[exp(t\sum_{i=1}^n X_i)]\\
+&=\prod_{i=1}^n \EE e^{tX_i}\\
+&=( \EE e^{tX_1})^n
+\end{align*}
+
+If we assume $\EE e^{tX_1}\leq e^{ct^2}$ for some constant $c>0$ (which holds under rather general conditions),  the upper bound is then obtained:
+$$\PP(S_n>\alpha)\leq  \frac{E(exp(tS_n))}{e^{t\alpha}} \leq \frac{e^{ct^2n}}{e^{\alpha t}}=e^{cnt^2-\alpha t}$$
+Since the above inequality holds for any $t>0$, we can pick  $t^*=\frac{\alpha}{2cn}$ so that it minimizes the expression on the right hand side of the inequality. Plugging in $t^*$ gives
+$$\displaystyle\PP(S_n>\alpha)\leq e^{\frac{-\alpha}{4cn}}$$
+Notice that we pick $\alpha\sim O(\sqrt{n})$ so that the above bound gives meaningful results.
+
+\section{Hoeffding's Inequality}
+The idea in Section \ref{key} can be applied in the proof of similar results. One example is \textbf{Hoeffding's inequality}.
+ 
+\begin{theorem} Hoeffding's Inequality.
+
+Suppose $X_1,X_2,\dots,X_n$ are independent random variables with $a_i\leq X_i\leq b_i$. Write $S_n=\sum_{i=1}^n X_i$. Then, for $\alpha>0$,
+$$P(|S_n-\EE S_n|>\alpha)\leq 2 exp(\frac{-2\alpha^2}{\sum_{i=1}^n(b_i-a_i)^2})$$
+\end{theorem}
+In order to prove the inequality, let us first introduce Hoeffding's lemma.
+\begin{lemma}Hoeffding's lemma.
+
+Suppose $X$ is a random variable such that $a\leq X\leq b$ for some constant $a,b$. For any $t>0$, we have
+$$\EE e^{tX}\leq exp(\frac{t^2(b-a)^2}{8}).$$
+\end{lemma}
+\noindent\textbf{Proof of Hoeffding's Inequality:}
+\begin{proof}
+Without loss of generality we can consider the case where each $X_i$ has $\EE X_i=0$. Otherwise we just replace $X_i$ with $\bar{X}_i=X_i-\EE X_i$ in later analysis. Notice that if $a_i\leq X_i \leq b_i$, then $a_i-\EE X_i \leq \bar{X}_i\leq b_i-\EE X_i$, and  $(b_i-\EE X_i)-(a_i-\EE X_i )=b_i-a_i$. Hence the result remains the same.
+
+With the above being said, from now on we work with $X_i$ that has $\EE X_i=0$. 
+\begin{align*}
+\PP(S_n>\alpha)&=\PP(e^{tS_n}>e^{t\alpha})\\
+&\leq \frac{\EE e^{tS_n}}{e^{t\alpha}}\\
+&=\frac{\prod_{i=1}^n \EE e^{tX_i}}{e^{t\alpha}} \\
+&\leq e^{\frac{t^2\sum_{i=1}^n(b_i-a_i)^2}{8}}e^{-t\alpha} 
+\end{align*}
+By picking $t=\frac{4\alpha}{\sum_{i=1}^n(b_i-a_i)^2}$ we can minimize the right hand side of the inequality, which gives
+$$\PP(S_n>\alpha)\leq  exp(\frac{-2\alpha^2}{\sum_{i=1}^n(b_i-a_i)^2}).$$
+
+Following the same steps, we have 
+$$\PP(S_n<-\alpha)=P(-S_n>\alpha)\leq  exp(\frac{-2\alpha^2}{\sum_{i=1}^n(b_i-a_i)^2}).$$
+Therefore,
+$$P(|S_n-\EE S_n|>\alpha)\leq 2 exp(\frac{-2\alpha^2}{\sum_{i=1}^n(b_i-a_i)^2}).$$
+\end{proof}
+
+\noindent\textbf{Proof of Hoeffding's lemma:}
+\begin{proof}
+By convexity, for any $x\in(0,1)$ we have 
+$$e^{tX}\leq xe^{tb}+(1-x)e^{ta}.$$
+Hence,
+$$e^{tX}\leq \frac{X-a}{b-a}e^{tb}+\frac{b-X}{b-a}e^{ta}.$$
+Then
+$$\EE e^{tX}\leq \frac{\EE X-a}{b-a}e^{tb}+\frac{b-\EE X}{b-a}e^{ta}=\frac{-a}{b-a}e^{tb}+\frac{b}{b-a}e^ta.$$
+Let $\displaystyle h=t(b-a), \displaystyle p={\frac {-a}{b-a}}$ and $\displaystyle L(h)=-hp+\ln(1-p+pe^{h})$. Then $\frac{-a}{b-a}e^{tb}+\frac{b}{b-a}e^ta=e^{L(h)}$.
+
+Taking derivative of $\displaystyle L(h)$, 
+
+$\displaystyle L(0)=L^{'}(0)=0$  and 
+$$L^{''}(h)=\frac{(1-p)pe^h}{(1-p+pe^h)^2}\leq \frac{(1-p)pe^h}{4(1-p)pe^h}=\frac {1}{4}$$
+ for all $h$.
+
+By Taylor's expansion,
+
+$$\displaystyle L(h)\leq \frac {1}{8}h^{2}=\frac {1}{8}t^{2}(b-a)^{2}$$
+
+Hence, $\displaystyle \mathbb {E} e^{t X}\leq e^{{\frac {1}{8}}t^{2}(b-a)^{2}}$
+\end{proof}
+
+
+
+
+
+
+
+
+\bibliographystyle{alpha}
+\bibliography{bib}
+\begin{thebibliography}{[AHU]}
+\bibitem{johnson} Sanjoy Dasgupta and Anupam Gupta. "An elementary proof of a theorem of Johnson and Lindenstrauss." Random Structures \& Algorithms 22.1 (2003): 60-65.
+\end{thebibliography}
+
+\end{document}

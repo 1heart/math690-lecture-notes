@@ -1,0 +1,260 @@
+
+\documentclass[11pt]{article}
+
+
+
+\oddsidemargin=17pt \evensidemargin=17pt
+\headheight=9pt     \topmargin=26pt
+\textheight=556pt   \textwidth=436.5pt
+
+\usepackage{amsmath,amssymb,graphicx,color,amsthm}
+\usepackage[linesnumbered,ruled]{algorithm2e}
+%\usepackage{algorithmic}
+\usepackage{algpseudocode}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage[colorinlistoftodos]{todonotes}
+
+\newcommand{\excise}[1]{}
+\newcommand{\comment}[1]{{$\star$\sf\textbf{#1}$\star$}}
+
+\leftmargini=5.5ex
+\leftmarginii=3.5ex
+
+%new math symbols taking no arguments
+\newcommand{\RNum}[1]{\uppercase\expandafter{\romannumeral #1\relax}}
+\newcommand\<{\langle}
+\newcommand\CC{\mathbb{C}}
+\newcommand\FF{\mathbb{F}}
+\newcommand\NN{\mathbb{N}}
+\newcommand\QQ{\mathbb{Q}}
+\newcommand\RR{\mathbb{R}}
+\newcommand\PP{\mathbb{P}}
+\newcommand\ZZ{\mathbb{Z}}
+\newcommand\EE{\mathbb{E}}
+\newcommand\kk{\Bbbk}
+\newcommand\mm{\mathfrak{m}}
+\newcommand\nn{\mathfrak{n}}
+\newcommand\pp{\mathfrak{p}}
+\newcommand\qq{\mathfrak{q}}
+\newcommand\from{\leftarrow}
+\newcommand\into{\hookrightarrow}
+\newcommand\onto{\twoheadrightarrow}
+\newcommand\minus{\smallsetminus}
+\newcommand\goesto{\rightsquigarrow}
+\newcommand\dirlim{\varinjlim}
+\newcommand\invlim{\varprojlim}
+%redefined math symbols taking no arguments
+\renewcommand\>{\rangle}
+\renewcommand\iff{\Leftrightarrow}
+\renewcommand\implies{\Rightarrow}
+%\floatname{algorithm}{Procedure}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+%new math symbols taking arguments
+\newcommand\ol[1]{{\overline{#1}}}
+
+%redefined math symbols taking arguments
+\renewcommand\mod[1]{\ (\mathrm{mod}\ #1)}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{note}{Note}
+%math operators not in math italic font
+\DeclareMathOperator\gr{gr}
+\DeclareMathOperator\IN{\mathsf{in}}
+\DeclareMathOperator\ass{Ass}
+\DeclareMathOperator\tor{Tor}
+\DeclareMathOperator\im{im}
+\DeclareMathOperator\var{var}
+\DeclareMathOperator\rees{\mathcal{R}}
+\DeclareMathOperator\spec{Spec}
+\DeclareMathOperator\length{length}
+\DeclareMathOperator\argmin{argmin}
+
+%for easy 2 x 2 matrices
+\newcommand\twobytwo[1]{\left[\begin{array}{@{}cc@{}}#1\end{array}\right]}
+
+%for easy column vectors of size 2
+\newcommand\tworow[1]{\left[\begin{array}{@{}c@{}}#1\end{array}\right]}
+
+%for \marginpar to fit optimally
+%hoffset=-1in
+\setlength\marginparwidth{2.2in}
+\setlength\marginparsep{1mm}
+\newcommand\red[1]{\marginpar{\vspace{-1.4ex}\footnotesize{\color{red}#1}}}
+\newcommand\score[1]{\marginpar{\colorbox{yellow}{#1/10}}}
+\newcommand\total[1]{\marginpar{\colorbox{yellow}{\huge #1/100}}}
+\newcommand\magenta[1]{\colorbox{magenta}{$\!$#1$\!$}}
+\newcommand\yellow[1]{\colorbox{yellow}{$\!$#1$\!$}}
+\newcommand\green[1]{\colorbox{green}{$\!$#1$\!$}}
+\newcommand\cyan[1]{\colorbox{cyan}{$\!$#1$\!$}}
+\newcommand\rmagenta[1]{\red{\magenta{\phantom{:}}\,: #1}}
+\newcommand\ryellow[1]{\red{\yellow{\phantom{:}}\,: #1}}
+\newcommand\rgreen[1]{\red{\green{\phantom{:}}\,: #1}}
+\newcommand\rcyan[1]{\red{\cyan{\phantom{:}}\,: #1}}
+
+
+
+\newcommand{\handout}[5]{
+   \renewcommand{\thepage}{#1-\arabic{page}}
+   \noindent
+   \begin{center}
+   \framebox{
+      \vbox{
+    \hbox to 5.78in { {\bf MATH 690: Topics in Data Analysis and Computation} \hfill #2 }
+       \vspace{4mm}
+       \hbox to 5.78in { {\Large \hfill #5  \hfill} }
+       \vspace{2mm}
+       \hbox to 5.78in { {\it #3 \hfill #4} }
+      }
+   }
+   \end{center}
+   \vspace*{4mm}
+}
+
+
+
+\newcommand{\lecture}[4]{\handout{#1}{#2}{Lecturer: #3}{Scribe: #4}{#1}}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\lecture{Dimension Reduction}{September 26, 2017}{Xiuyuan Cheng}{Didong Li}
+
+%
+%\title{\mbox{}\\[-11ex] MATH 690-40 Lecture Notes}
+%\author{\\Xiuyuan Cheng}
+%\date{Sept. 26}
+%\maketitle
+
+
+
+\section{tSNE}
+\begin{definition}
+Let $p$ and $q$ be two probabilist distribution on space $\Omega$, then the  Kullback-Leibler divergence between $p$ and $q$ is
+$$KL(p||q)\coloneqq \int_\Omega p(x)\log \frac{p(x)}{q(x)}\operatorname{dx}$$
+when $p$ is continuous, and 
+$$KL(p||q)\coloneqq \sum_{i=1}^n p_i\log\frac{p_i}{q_i}$$
+when $p$ is discrete.
+\end{definition}
+\begin{proposition}
+$D(p||q)\geq 0$, $KL(p||q)=0 \Longleftrightarrow p=q$.
+\end{proposition}
+\begin{proof}
+$\Longleftarrow$:  Trivial.\\
+\item $\Longrightarrow$: Since $\log x\leq x-1$, $\log x=x-1\Longleftrightarrow x=1$,
+\begin{align*}
+KL(p||q)&=-\sum_i p_i\frac{q_i}{p_i}\\
+&\geq -\sum_i p_i(\frac{q_i}{p_i}-1)\\
+&=0,
+\end{align*}
+and the inequality is equality if and only if $\frac{q_i}{p_i}-1=1$, that is $p_i=q_i,\ \forall i$.
+\end{proof}
+\begin{definition}
+$K(x_i,x_j)\coloneqq e^{-\frac{\|x_i-x_j\|^2}{2\sigma_i^2}}$, $P_{ij}\coloneqq \frac{K(x_i,x_j)}{\sum_{k\neq l}K(x_k,x_l)}$, $\bar P_{ij}\coloneqq \frac{P_{ij}+P_{ji}}{2}$.
+\end{definition}
+The t-distribution stochastic neighborhood embedding(tSNE) algorithm is to find the optimal $Y=\{y_i\}_{i=1}^n$ to minimize the function
+$$\min_Y KL(P||Q)=\sum_{i\neq j} P_{ij}\log\frac{P_{ij}}{Q_{ij}},$$
+where $Q_{ij}\coloneqq \frac{K(y_i,y_j)}{\sum_{k\neq l}K(y_k,y_l)}$.
+
+\begin{remark}
+The kernel has heavy tail so it decays slowly, so $p$ could be fitted better when the dimension is high.
+\end{remark}
+
+
+
+
+
+\section{Convergence of Graph Laplacian}
+Let $\{x_i\}_{i=1}^n\subset \RR^D$ be the observed data set. Assume $x_i$ is sampled from some $d$ dimensional manifold $M$ embedded in $\RR^D$.
+\begin{definition}
+$K_\epsilon(x,y)\coloneqq (2\pi\epsilon)^{-\frac{d}{2}}\exp^{-\frac{\|x-y\|^2}{2\epsilon}}$ is called the heat kernel parametrized by $\epsilon$. 
+\end{definition}
+Recall the following definitions in the previous lectures:
+\begin{definition}
+$W_{ij}\coloneqq K_\epsilon(x_i,x_j)$, $L_{n,\epsilon}\coloneqq L_{rw}\coloneqq=I-P\coloneqq=I-D^{-1}W$, where $D=\operatorname{diag}\{d_{ii}\}_{i=1}^n$, $d_{ii}=\sum^n_{j=1}W_{ij}$.
+\end{definition}
+The goal of this lecture is to prove the following theorem.
+\begin{theorem}
+Assume $x_i\sim p$, let $u(x)=-2\log p(x)$, then
+$$\frac{1}{\epsilon}L_{n,\epsilon}\xrightarrow[\text{$\epsilon\rightarrow 0$}]{\text{$n\rightarrow\infty$}}  -\frac{1}{2}\Delta_M-\nabla u\cdot\nabla,$$
+where $\Delta_M$ is the Beltrami-Laplacian operator on $M$. In particular, when $x_i$ is sampled from uniform distribution, $\nabla u=0$, so 
+$$\frac{1}{\epsilon}L_{n,\epsilon}\xrightarrow[\text{$\epsilon\rightarrow 0$}]{\text{$n\rightarrow\infty$}}  -\frac{1}{2}\Delta_M.$$
+\end{theorem}
+\begin{proof}
+We prove this theorem in two steps:\\
+Step 1: $\frac{1}{\epsilon}L_{n,\epsilon}\xrightarrow[]{\text{$n\rightarrow\infty$}}  L_\epsilon$.\\
+Step 2: $\frac{1}{\epsilon}L_\epsilon\xrightarrow[]{\text{$\epsilon\rightarrow 0$}}L=-\frac{1}{2}\Delta_M-\nabla u\cdot \nabla$. 
+\begin{enumerate}
+\item Proof of Step 1.\\
+For any $v\in\RR^n$, 
+\begin{equation*}
+[L_{n,\epsilon}(v)](i)=[(I-D^{-1}W)v](i)=v(i)-\frac{\sum_{j}W_{ij}v(j)}{D_{ii}},
+\end{equation*}
+where $v(i)$ denotes the $i$-th coordinate of vector $v$. Rewrite $L_{n,\epsilon}$ in term of kernel function:
+\begin{equation}
+[L_{n,\epsilon}(v)](i)=v(i)-\frac{\sum_{j}K_{\epsilon}(x_i,x_j)v(j)}{\sum_j K_\epsilon(x_i,x_j)}.
+\end{equation}
+Then we can extend $L_{n,\epsilon}:\RR^n\rightarrow \RR^n$ to a operator 
+$\bar L_{n,\epsilon}:C^2(M)\rightarrow C(M)$, defined by
+\begin{equation}
+[\bar L_{n,\epsilon}(f)](x)\coloneqq f(x)-\frac{\sum_{j}K_{\epsilon}(x,x_j)f(x_j)}{\sum_j K_\epsilon(x,x_j)}
+\end{equation}
+Suppose $\psi$ is an eigenfunction of $\bar L_{n,\epsilon}$, that is, $L_{n,\epsilon}=\lambda\phi$, then the discrete version of $\phi$: $(\phi(x_1),\cdots,\phi(x_n))$ is an eigenvector of $L_{n,\epsilon}$ associated with eigenvalue $\lambda$. 
+
+Assume $x_i$ is  sampled from uniform distribution, then by the Law of Large Numbers, as $n\rightarrow \infty$
+\begin{equation}
+\frac{1}{n}\sum_j K_\epsilon(x,x_j)f(x_j)\rightarrow\int_M K_\epsilon(x,y)f(y)\operatorname{dV}(y),
+\end{equation}
+\begin{equation}\frac{1}{n}\sum_j K_\epsilon(x,x_j)\rightarrow\int_M K_\epsilon(x,y)\operatorname{dV}(y),\end{equation}
+where $\operatorname{dV}$ is the volume form of $M$. As a result, 
+\begin{align*}
+[\bar{L}_{n,\epsilon}f](x)\xrightarrow[]{\text{$n\rightarrow\infty$}}L_\epsilon &=f(x)-\frac{\int_M K_\epsilon(x,y)f(y)\operatorname{dV}(y)}{\int_M K_\epsilon(x,y)\operatorname{dV}(y)}\\
+&=f(x)-\frac{\int_M e^{-\frac{\|x-y\|^2}{2\epsilon}}f(y)\operatorname{dV}(y)}{\int_M e^{-\frac{\|x-y\|^2}{2\epsilon}}\operatorname{dV}(y)}
+\end{align*}
+\item Proof of Step 2.\\
+\begin{enumerate}
+\item Consider the simplest case first: $M=[0,1]$. Then (3) becomes
+\begin{align*}
+\int_0^1 e^{-\frac{(x-y)^2}{2\epsilon}}f(y)\operatorname{dy}&=\int_{-\frac{x}{\sqrt\epsilon}}^\frac{1-x}{\sqrt\epsilon} {e^{-\frac{z^2}{2}}}f(x+\sqrt{\epsilon}z)\sqrt{\epsilon}\operatorname{dz}\\
+&=\sqrt\epsilon \int_{-\frac{x}{\sqrt\epsilon}}^\frac{1-x}{\sqrt\epsilon} {e^{-\frac{z^2}{2}}}[f(x)+\sqrt\epsilon zf'(x)+\frac{\epsilon z^2}{2}f''(x)+o(\epsilon^{\frac{3}{2}})]\operatorname{dz}\\
+&=\sqrt\epsilon (f(x)\int_{-\frac{x}{\sqrt\epsilon}}^\frac{1-x}{\sqrt\epsilon} e^{-\frac{z^2}{2}}\operatorname{dz}+\frac{\epsilon}{2}f''(x)\int_{-\frac{x}{\sqrt\epsilon}}^\frac{1-x}{\sqrt\epsilon} e^{-\frac{z^2}{2}}z^2\operatorname{dz}+o(\epsilon^{\frac{3}{2}}))\\
+&=\sqrt{2\pi\epsilon} (f(x)+\frac{\epsilon}{2}+o(\epsilon^{\frac{3}{2}})).
+\end{align*}
+The last equation holds when $\epsilon$ is sufficiently small, since the odd order moments of standard normal distribution are all zero. Similarly, (4) could be written as
+$$\int_0^1 e^{-\frac{(x-y)^2}{2\epsilon}}\operatorname{dy}(y)=\sqrt{2\pi\epsilon}.$$
+As a result,
+$$L_\epsilon=f(x)-(f(x)+\frac{\epsilon}{2}f''(x)+o(\epsilon^{\frac{3}{2}}))=-\frac{\epsilon}{2}f''(x)-o(\epsilon^{\frac{3}{2}}),$$
+$$\frac{1}{\epsilon}L_{\epsilon}f\xrightarrow[]{\text{$\epsilon\rightarrow 0$}}-\frac{1}{2}f''.$$
+\item When the manifold is $c(t)=\begin{bmatrix}t\\at^2+o(t^3)\end{bmatrix}$. When the density is uniform, similar computation simplifies equation (3) as:
+\begin{equation}
+\int K_\epsilon (x,y)f(y)\operatorname{ds(y)}=f(x)+c\frac{\epsilon}{2}(f''(x)+a^2f(x))+o(\epsilon^2)
+\end{equation}
+When the density is $p$, (3)/(4) is
+$$\frac{fp+c\frac{\epsilon}{2}((fp)''+a^2fp+o(\epsilon^2)}{p+c\frac{\epsilon}{2}(p''+2f'\frac{p'}{p})+o(\epsilon^2)}=f+c\frac{\epsilon}{2}(f''+2f' \frac{p'}{p})+o(\epsilon^2).$$
+As a result,
+$$\frac{1}{\epsilon}\bar L_\epsilon(f)=c(f''+2f'\frac{p'}{p})+o(\epsilon)\xrightarrow[\text{$\epsilon\rightarrow 0$}]{}c(f''-u'f'),$$
+where $u=-2\log f$.
+\item For general case, that is $d>1$,
+$$\frac{1}{\epsilon}\bar L_\epsilon\xrightarrow[\text{$\epsilon\rightarrow 0$}]{} \Delta_Mf-\nabla u\cdot\nabla f.$$
+\end{enumerate}
+\end{enumerate}
+\end{proof}
+\begin{remark}
+When $d>1$, let $\{s_1,\cdots,s_d\}$ be the local orthonormal basis, then the correction term, $a^2$ in (5), is
+$$E(x)=\sum_{i=1}^d a_i(x)-\sum_{i\neq j}a_i(x)a_j(x),$$
+where $a_i(x)$ is the directional curvature of $s_i$.
+\end{remark}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
