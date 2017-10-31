@@ -1,0 +1,120 @@
+\documentclass[12pt]{article}
+
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{amsmath, amssymb, amsthm, amsfonts, tikz, algpseudocode}
+\usepackage[plain]{algorithm}
+\usepackage[framemethod=default]{mdframed}
+
+\theoremstyle{plain}
+\newtheorem*{theorem}{Theorem}
+\newtheorem*{lemma}{Lemma}
+\newtheorem*{claim}{Claim}
+\newtheorem*{definition}{Definition}
+\newtheorem*{corollary}{Corollary}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\eig}{eig}
+
+%%%% TITLE
+
+\title{Math 690: Topics in Data Analysis and Computation \\
+Lecture notes for October 3, 2017}
+\date{}
+
+\author{Scribed by Dev Dabke and Andrew Cho}
+
+\begin{document}
+\maketitle
+
+\section{Background}
+\label{sec:background}
+
+\subsection{k means}
+\label{subsec:kmeans}
+
+Given some data points as input, $ \{ x_i \}^n_{i = 1} $, we want to search for $ k $ clusters $ C = \{ C_1, \ldots, C_k \} $ with ``centers'' $ \mu = \{ \mu_1, \ldots, \mu_k \} $.
+\\ \\
+Depending on our constraints, we can have different interpretations of what these clusters represent.
+\begin{align*}
+  \min_{C, \mu} & \sum_{l = 1}^k \sum_{i \in C_{l}} \| x_i - \mu_{l} \|_2^2 & \text{k means} \\
+  \min_{C, \mu} & \sum_{l = 1}^k \sum_{i \in C_{l}} \| x_i - \mu_{l} \|_{+} & \text{k medians} \\
+  \min_{C, \mu} & \sum_{l = 1}^k \sum_{i \in C_{l}} \| x_i - \mu_{l} \|_2 & \text{$ L_2 $ - $ L_1 $ norm}
+\end{align*}
+We can choose different initial seeds
+\begin{enumerate}
+  \item random
+  \item by the singular value decomposition (svd)
+\end{enumerate}
+We are interested in knowing if these results are \textit{consistent}.
+Can random seeding lead to the true centroids?
+
+\subsection{Strong Law of Large Numbers}
+\label{subsec:slln}
+
+\[
+\mathcal{L}_n (\mu) = \int \| x - \mu \|^2 d P_n(x)
+\]
+where
+\[
+d P_n (x) = \frac{1}{n} \sum_{i = 1}^n \delta_{x_{i} (x)} dx
+\]
+which is the empirical mesure of the data.
+\\ \\
+Where $ A = \{ a_1, \ldots, a_n \} $ for all $ x \in \mathbb{R} $, we define $ \| x - A \| $ to be
+\[
+\| x - A \| = \min_{1 \leq i \leq n} \| x - a_i \|
+\]
+Now, note that as $ n \to \infty $ that
+\[
+\mathcal{L} (\mu) = \int \| x - \mu \|^2 dP(x)
+\]
+and that
+\[
+\min_{\mu} \mathcal{L}_n (\mu) \to \min_{\mu} \mathcal{L} (\mu)
+\]
+
+\section{Classification and Misclassification}
+\label{sec:classmisclass}
+
+\subsection{Analysis}
+\label{subsec:analysis}
+
+If we satisfy some requirements of ``separation'' to provide some band for misclassification, assuming some true centroid partition.
+\\ \\
+$ \| \mu^{*}_{k} - \mu^{*}_{l} \| $ if $ k \neq l $ needs to be bigger than a gap $ \Delta_{kl} $.
+\\ \\
+\[
+\Delta_{kl} > c \frac{\sigma_l}{\sqrt{w_{min}}} \hspace{1cm} w_{min} = \min_{l} \frac{|C_l^{*}|}{n}
+\]
+Letting $ \sigma_k^2 $ be the variance of the data in the $ k^{th} $ cluster and if we can assume that $ \sigma_k \approx \sigma_l $, then we know that our misclassification error occurs less than some $ \epsilon * n $ with high probability.
+
+\subsection{In Practice}
+\label{subsec:inpractice}
+
+There are some practical considerations for k-means.
+\begin{enumerate}
+  \item what is $ k $?
+  \item how to choose an initial seed
+  \item some cases of k-means fails
+  \begin{enumerate}
+    \item $ \sigma_k $ might be too large compared to separation
+    \item clusters might be too small (i.e.\ cluster sizes may not be balanced)
+    \item cluster might be convex and piecewise can't do concave (Voronoi)
+  \end{enumerate}
+\end{enumerate}
+
+\section{Spectral Clustering}
+\label{sec:spectral}
+
+Given some data $ \{ x_i \}_{i = 1}^n $ and $ k $, we want to
+\begin{enumerate}
+  \item Build positive-definite, symmetrix matrix $ W_{n \times n} $ by some $ k $ nearest neighborhoods or some $ \epsilon $ neighborhoods.
+  Example: $ W_{ij} = e^{- \frac{\| x_i - x_j \|^2}{\epsilon}} $.
+  \item Consider the eigenvalue decomposition of the graph Laplacian $ \mathcal{L} $.
+  Note that
+  \begin{align*}
+    L_{wn} &= D - W \\
+    L_{rw} &= D^{-1} (D - W) -
+  \end{align*}
+\end{enumerate}
+
+\end{document}
