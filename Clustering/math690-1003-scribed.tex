@@ -11,6 +11,8 @@
 \newtheorem*{claim}{Claim}
 \newtheorem*{definition}{Definition}
 \newtheorem*{corollary}{Corollary}
+\newtheorem*{remark}{Remark}
+\newtheorem*{proposition}{Proposition}
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator*{\eig}{eig}
 
@@ -112,9 +114,44 @@ Given some data $ \{ x_i \}_{i = 1}^n $ and $ k $, we want to
   \item Consider the eigenvalue decomposition of the graph Laplacian $ \mathcal{L} $.
   Note that
   \begin{align*}
-    L_{wn} &= D - W \\
-    L_{rw} &= D^{-1} (D - W) -
+    L_{wn} &= D - W  & \text{unnormalized} \\
+    L_{rw} &= D^{-1} (D - W) & \text{Shi-Malik} \\
+    L_{sym} &= I - D^{-1/2} W D^{-1/2} & \text{NJW}
   \end{align*}
+  \item Apply k means to $ \Psi = [\varphi_i, \ldots, \varphi_k]_{n \times k} $ and denote $ y_i $ as the $ i^{th} $ row of $ \Psi $.
 \end{enumerate}
+
+\begin{remark}
+  If $ k = 2$, you can use trunction because the first eigenvalue is constant.
+\end{remark}
+
+\section{Connected Components}
+\label{sec:connected}
+
+\begin{definition}[Connected Components]
+
+Let $ \mathcal{G} = (V, E) $ such that on each edge $ (i, j) \in \mathcal{G} $ that $ w_{ij} > 0 $.
+If node $ i $ is connected to node $ j $, there is a path from $ i $ to $ j $.
+So then, set $ A $ is a \textbf{connected component} if every pair of $ i $ and $ j $ is connected and $ A $ is the maximum set that satisfies this condition to preserve connectivity.
+
+\end{definition}
+
+\begin{proposition}[Eigenspace of $ \lambda = 0 $]
+
+Suppose the graph has $ k $ connected components $ A_{1}, \ldots, A_{k} $.
+Then the eigenspace of $ \lambda = 0 $ of $ \dim{k} $ is spanned by
+\[
+\{ \mathbf{1}_{A_{1}}, \ldots, \mathbf{1}_{A_{k}} \}
+\]
+where
+\[
+\mathbf{1}_{A_{i}} (i) =
+\begin{cases}
+  1 & i \in A \\
+  0 & \text{otherwise}
+\end{cases}
+\]
+
+\end{proposition}
 
 \end{document}
