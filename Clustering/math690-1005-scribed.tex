@@ -15,6 +15,8 @@
 \newtheorem*{proposition}{Proposition}
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator*{\eig}{eig}
+\DeclareMathOperator*{\diag}{diag}
+\DeclareMathOperator*{\vol}{Vol}
 
 %%%% TITLE
 
@@ -27,6 +29,99 @@ Lecture notes for October 5, 2017}
 \begin{document}
 \maketitle
 
+\section{Background}
 
+Recall $ W_{n \times n} $ where $ W = W^{\intercal} $ (i.e.\ symmetric) and $ w_{ij} > 0 $.
+Additionally, let $ d = \diag{d_1, \ldots, d_n} $ where $ d_i = \sum_{j = 0}^{n} w_{ij} $.
+Next, denote
+\begin{align*}
+  \mathcal{L}_{wn} &= D - W \\
+  \mathcal{L}_{rw} &= I - D^{-1} W
+\end{align*}
+and $ P = D^{-1} W $.
+\\ \\
+Recall that if a graph has $ k $ connected components, then the eigenspace of $ \mathcal{L}_{wn} $ associated with eigenvalue $ 0 $ is the span of $ \{ \mathbf{1_{A_{i}}}, \ldots, \mathbf{1_{A_{i}}} \} $.
+
+\section{Exploring $ \mathcal{L} $}
+
+\subsection{Redefining Matrices}
+
+What is $ \mathcal{L}_{rw} $?
+We see that $ \mathcal{L}_{rw} = \Psi(1 - \Lambda)\Psi^{\intercal} $ and that $ P = \Psi\Lambda\Psi^{\intercal} $.
+Next, we note that $ \Psi^{\intercal} D \Psi = I $.
+Now, denoting $ \Psi = [ \varphi_1, \ldots, \varphi_{n} ] $, we can see that $ \varphi_k^{\intercal} D \varphi_l = 0 $ if $ k \neq l $.
+Finally, let $ P \phi_k = \lambda_k \phi_l $.
+
+\subsection{Eigenvectors}
+
+If $ f $ is an eigenvector of $ \mathcal{L}_{wn} $ with $ \lambda = 0 $, $ \mathcal{L}_{wn} f = 0 \dot f $ and $ (D - W)f = 0 $.
+If $ f $ is an eigenvector of $ \mathcal{L}_{rw} $ with $ \lambda = 0 $, then $ D^{-1} (D - W) f = 0 $ and $ (D - W)f = 0 $.
+\\ \\
+Next, we can also write the eigenvectors $ \varphi_{1} = c_1 \mathbf{1_{A_{1}}} + \cdots + c_k \mathbf{1_{A_{k}}} $.
+\\ \\
+What are the constants?
+\[
+c_1 = \sqrt{\frac{1}{\sum_{i \in C_1}d_i}}
+\]
+so $ c_1 = \{ 1, \ldots, n_1 \} $ and $ c_2 = \{ n_1 + 1, \ldots, n_1 + n_2 \} $.
+
+\subsection{The Special Case of $ k = 2$}
+
+We can write $ \widetilde{\varphi_2} = \alpha \varphi_{1}  + \beta \varphi_{2} $.
+We have that $ \alpha^2 + \beta^2 = 1 $ and that $ \widetilde{\varphi_2}^{\intercal}d = 0 $ since $ d = [d_1, \ldots d_n]^{\intercal} $.
+\\ \\
+Moreover, $ \alpha $ and $ \beta $ should have different signs, which we can use to get clusters.
+More generally, we don't have to cut at zero, but using the sign as a cluster is convenient.
+
+\subsection{Deciding $ k $}
+
+We can use the spectral gap heuristic, which tells us that the first $ k $ eigenvalues will be close to one another, and then there will be a ``gap'' after $ k $.
+We could use the log values of the ordered eigenvalues can provide some estimate as to where this gap could be.
+
+\section{Graph Cut}
+
+\subsection{Getting Started}
+
+\begin{definition}[Cut]
+
+Let $ A \cap B = \emptyset $ where $ A, B \subset V = \{ 1, \ldots, n \} $.
+Then a cut $ W(A, B) $ is defined as
+\[
+W(A, B) = \sum_{i \in A, j \in B} w_{ij}
+\]
+
+\end{definition}
+
+\begin{definition}[Volume Set]
+
+$ \vol(A) = \sum_{i \in A} d_i $ is the sum of degrees.
+
+\end{definition}
+
+\begin{definition}[Normalized Cut Partition]
+Let $ C = \{ C_1, \ldots, C_k \} $ and denote
+\[
+NCut(C) = \frac{ \sum_{l = 1}^k W(C_1, C_l^{\complement}) }{ \vol{C_l} }
+\]
+
+\end{definition}
+
+\begin{proposition}
+  \begin{align*}
+    NCut(C) &= \sum_{l = 1}^{k} \varphi_l^{\intercal} L \varphi_{l} \\
+    \varphi_l &= c_{l} \mathbf{1_{c_{l}}} & l = 1, \ldots, k \\
+    c_l &= \frac{1}{\sqrt{\vol{C_l}}}
+  \end{align*}
+\end{proposition}
+
+\subsection{Problem of Min NCut}
+
+Let $ H $ be the matrix such that $ H = [\varphi_1, \ldots, \varphi_k] $.
+Then, the minimum $ NCut $ over the $ C $s is the trace of $ H^{\intercal} L H $.
+\\ \\
+The spectral minimum $ NCut $ is defined to be the above trace, but where $ H^{\intercal} D H = I_{k} $.
+\begin{proposition}
+  The solution of the spectral minimum $ NCut $ is the first $ k $ eigenvectors of $ \mathcal{L}_{rw} $ normalized.
+\end{proposition}
 
 \end{document}
