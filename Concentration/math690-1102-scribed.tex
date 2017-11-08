@@ -1,0 +1,96 @@
+\documentclass[11pt,letter]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{fullpage}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{bbm}
+\makeatletter
+\DeclareMathOperator{\E}{\mathbb{E}}
+\renewcommand*\env@matrix[1][*\c@MaxMatrixCols c]{%
+  \hskip -\arraycolsep
+  \let\@ifnextchar\new@ifnextchar
+  \array{#1}}
+\makeatother
+
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{fact}[theorem]{Fact}
+
+\onehalfspacing
+
+\begin{document}
+
+\title{MATH 690: Lecture Scribing}
+
+\author{Xiuyuan Cheng, Scribing: Weiyao Wang}
+
+\date{Nov.02, 2017}
+
+\maketitle
+
+\section{Summary}
+
+In last lecture, we finished the proof for JL lemma. In today's lecture, we hope to discuss the concentration of function $F(x)$ beyond the form of summation. We will also see two applications for concentration of measure: spectral edge, second largest eigenvalue $\lambda_2(G)$ where $G$ is a random graph; randomized SVD (PCA).
+
+\section{McDiarmid Inequality}
+
+\begin{theorem}
+Let $x_1,...,x_n$ be random variable, independent, and $x_i\in \Omega_i\subset \mathbb{R}$. Give function $F: \mathbb{R}^n\to \mathbb{R}$ there exists $c_i>0$, such that $\forall i$, $\forall x_i, x_i'\in \Omega_i$
+$$|F(x_1,...,x_{i-1},x_i,x_{i+1},...,x_n)-F(x_1,...,x_{i-1},x_i',x_{i+1},...,x_n)|\leq c_i$$
+
+Then $\forall \lambda>0$, $Pr[|F(x)-\E F(x)|\geq \lambda (\sum_{i=1}^n c_i^2)^{\frac{1}{2}}]\leq C_1e^{-C_2\lambda^2}$, where $C_1$ and $C_2$ are constants.
+\end{theorem}
+
+An exercise here would be to see how McDiarmid $\to$ Hoeffding.
+
+\begin{proof}
+We want to use a similar idea on exponential momentum as we proved lemmas previously. We will also use the idea of martingale difference here. We first consider $\E e^{t(F-\E F)}$.
+
+We have $F(x)=\E [F|x_1,...,x_n]$, $\E F=\E[F|\emptyset]:=\E_0 F$, which gives us the following equation of telescoping:
+
+\begin{eqnarray}
+F(x)-\E F &=& \sum_{k=1}^n \E[F|x_1,...,x_k]-\E[F|x_1,...,x_{k-1}] \nonumber \\
+&=& \sum_{k=1}^n \E_k F-\E_{k-1} F \nonumber
+\end{eqnarray}
+
+Thus, plugging into $\E e^{t(F-\E F)}$, we have the following calculation:
+
+\begin{eqnarray}
+\E e^{t(\sum_{k=1}^n \E_k F-\E_{k-1} F)} &=& \E[ e^{t(\E_n F-\E_{n-1} F)} e^{t(\sum_{k=1}^{n-1} \E_k F-\E_{k-1} F)}] \nonumber \\
+&=& \E[\E[e^{t(\E_n F-\E_{n-1} F)} e^{t(\sum_{k=1}^{n-1} \E_k F-\E_{k-1} F)}]|x_1,...,x_{n-1}] \nonumber \\
+&=& \E[e^{t(\sum_{k=1}^{n-1} \E_k F-\E_{k-1} F)} \E[e^{t(\E_n F-\E_{n-1} F)}|x_1,...,x_{n-1}]] \nonumber
+\end{eqnarray}
+
+From the equation above, we see that we can freeze $x_1,..,x_{n-1}$ and $\E_n F:=G(x_n)$, $\E_{n-1} F=\E[G(x_n)]$ over $x_n$. By our assumption, we have $|G(x_n)-G(x_n')|\leq c_n$, $\forall x_n, x_n'$. Therefore, we have $\exists a_n, b_n$ such that $G(x_n)\in [a_n,b_n)$. This implies $e^{t(G(x_n)-\E[G(x_n)])}\leq e^{-\frac{t^2}{8}c_n^2}$, using Hoeffding's lemma.
+
+Putting the calculation back and apply the argument of freezing variables recursively, we have $\E e^{t(F-\E F)} \leq \Pi_{k=1}^n e^{-\frac{t^2}{8}c_k^2}=e^{-\frac{t^2}{8}\sum_{k=1}^nc_k^2}$. Finally we use the similar argument to find the minimizer as in the proof for previous lemmas.
+\end{proof}
+
+\subsection{Remark on JL Lemma}
+
+To have a nontrivial dimension reduction (i.e. $d<D$), we will need $D\geq d \geq \frac{8}{\epsilon^2}ln(n)$, we have $n\leq e^{\frac{\epsilon^2}{8}D}$, this requires that we cannot have more than $(\text{constant})^D$ many points in $D-$dimensional space, where $\text{constant}=e^{\frac{\epsilon^2}{8}}$. When distortion tolerance is small (i.e. $\epsilon \to 0$), this is very restrictive.
+
+\section{Gaussian Concentration for Lipschitz Function}
+
+Recall 
+\begin{definition}
+Lipschitz function $F:\mathbb{R}^n \to \mathbb{R}$ satisfies the property such that $\exists L>0$ such that $|F(x)-F(y)|\leq L|x-y|_2$. We then say $F$ is $L$-Lipschitz.
+\end{definition}
+
+\begin{theorem}
+Suppose $x_1,...,x_n \text{  }\sim N(0,1),\ i.i.d$; and $F:\mathbb{R}^n \to \mathbb{R}$ is 1-Lipschitz. Then $\forall \alpha>0$, we have $Pr[|F(x_1,...,x_n)-\E F(x_1,...,x_n)|>\alpha]\leq 2e^{\frac{-\alpha^2}{2}}$
+\end{theorem}
+
+\begin{proof}
+We will only give the idea for the proof here. The idea is to sue rotation invariance of $X\sim N(0,I_n)$, and thena pply to spectral edge concentration. And we will also need a proposition that tells for $A=A^T$, $\lambda(A)\geq ...\geq \lambda_n(A)$; the map $\lambda_i: \mathbb{R}^{\frac{n(n-1)}{2}} \to \mathbb{R}$ is 1-Lipschitz. The proof for the proposition comes from the lemma $|\lambda_i(A)-\lambda_i(B)|\leq |A-B|_{Fro}$, which can be proved using Courant-Fischer Inequality we discussed at the beginning of the semester.
+\end{proof}
+
+\end{document}
