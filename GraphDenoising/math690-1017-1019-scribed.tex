@@ -1,0 +1,209 @@
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{babel}
+\begin{document}
+
+\section*{Notes For 10/17/2017}
+
+\subsection*{Graph Clustering}
+
+Let $G=(V,E)$ be a graph with adjacency matrix $A.$ Our goal is
+to find clusters in $G,$ i.e. a partition of $V=\{1,...,n\}.$ 
+
+Idea: Some permutation of $A$ should have a block structure where
+the blocks correspond to clusters. We want to find the ``hidden blocks,''
+since we don't know the necessary permutation. \textbackslash{}
+
+\subsection*{The Stochastic Block Model}
+
+For each $i\in\{1,...,n\}$ we want to find the corresponding cluster
+label $y_{i}\in\{1,...,k\},$ given $\{A_{ij}\}.$ Suppose the graph
+is chosen randomly so that 
+\[
+A_{ij}=\begin{cases}
+\begin{array}{c}
+0\\
+ber(p_{ij})
+\end{array} & \begin{array}{c}
+i=j\\
+i\neq j
+\end{array}\end{cases}
+\]
+ Since $A$ is symmetric, we must have $A_{ij}=A_{ji}.$ The $A_{ij}$
+are independent for all $i<j.$ The probabilities $p_{ij}$ are given
+by 
+\[
+p_{ij}=\begin{cases}
+\begin{array}{c}
+p_{1}\\
+p_{2}
+\end{array} & \begin{array}{c}
+y_{i}=y_{j}\\
+y_{i}\neq y_{j}
+\end{array}\end{cases}
+\]
+ for some $0<p_{1}<p_{2}<1.$ The goal is to recover $\{y_{i}\}$
+up to some permutation of $\{i\}.$ 
+
+\subsection*{Special Case: 2 Clusters}
+
+$k=2.$ Suppose the clusters have size $\mid c_{1}\mid=n_{1},$ $\mid c_{2}\mid=n_{2}.$
+Then with some permutation
+\[
+\bar{A}=\mathbb{E}A=\left[\begin{array}{cc}
+P_{1} & P_{2}\\
+P_{2} & P_{1}
+\end{array}\right]
+\]
+ (w/ diagonal $0$). Consider $eig(A).$ 
+\[
+\bar{A}=\Theta_{kx2}B_{2x2}\Theta_{2xk}^{T}
+\]
+ where $\theta_{il}=\delta_{y_{i}=l}$ and $B=\left[\begin{array}{cc}
+p_{1} & p_{2}\\
+p_{2} & p_{1}
+\end{array}\right].$ 
+
+So $\bar{A}$ has rank $k$ and the eigenvectors of $\bar{A}$ ``indicate''
+the blocks of $A.$ This can be used to find the clusters. 
+
+But we are only given $A,$ not $\bar{A}.$ If $eig(A)$ is close
+to $eig(\bar{A}),$ then this method can still work. Write $A=\bar{A}+E,$
+where $\mathbb{E}E=0.$ We know that $var(E_{ij})\leq1$ and that
+the $E_{ij}$ are independent for $i<j.$ 
+
+$\,$
+
+\textbf{Prop }
+
+If $\parallel\cdot\parallel_{op}$ denotes the operator norm, then
+$\parallel E\parallel\leq c\sqrt{n}$ for some $c>0.$ If $n_{1},n_{2}\sim O(n),$
+then $\parallel\bar{A}\parallel_{op}\sim O(n).$ 
+
+Therefore, the eigenvalues of $\bar{A}$ are on a higher order than
+those of $E.$ 
+
+$\,$
+
+\textbf{Thm (Davis-Kahan, Stability of Eigenvectors) }
+
+Let $\tilde{A}=A+E,$ be nxn, symmetric matrices with $\parallel E\parallel_{op}$
+small. Say that the diagonalization of $A$ is 
+\[
+A=U\Lambda U^{T}=U_{1}\Lambda_{1}U^{T}+U_{2}\Lambda_{2}U_{2}^{T}
+\]
+ where $U=[U_{1}\mid U_{2}]$ and $U_{i}$ is $n$x$n_{i},$ and $\tilde{A}=\tilde{U}\tilde{\Lambda}\tilde{U}^{T}.$
+If $\exists$ $(a,b)$ and $\delta>0$ such that $\Lambda_{1}$ (i.e.
+diagonal entries of $\Lambda_{1}$)$\sqsubset(a,b)$ and $\Lambda_{2}\sqsubset(a-\delta,b+\delta)$
+(this is the ``spectral gap condition''), then 
+\[
+\parallel U_{1}^{T}\tilde{U_{2}}\parallel\leq\frac{\parallel\tilde{U_{2}^{T}EU_{1}}\parallel}{\delta}\leq\frac{\parallel E\parallel}{\delta}.
+\]
+ \textbf{Proof}
+
+Say $A\psi=\lambda\psi$ and $\tilde{A}\tilde{\psi}=\tilde{\lambda}\tilde{\psi}.$
+Then $\tilde{\psi}^{T}A\psi=\lambda(\tilde{\psi}^{T}\psi)$ and $(A+E)\tilde{\psi}=\tilde{\lambda}\tilde{\psi}\Rightarrow\psi^{T}A\tilde{\psi}+\psi^{T}E\tilde{\psi}=\tilde{\lambda}\psi^{T}\tilde{\psi}.$
+Combining the last two equations gives $\psi^{T}E\tilde{\psi}=(\tilde{\lambda}-\lambda)(\psi^{T}\tilde{\psi}).$
+Repeating this process for all $\psi,\tilde{\psi}$ and using the
+spectral gap condition implies the theorem. ///
+
+\section*{Notes for 10/19/2017 }
+
+\subsection*{Topic 4 - Graph Denoising}
+
+The idea behind this topic is to use the geometry of a graph to improve
+estimation of a function on that graph. 
+
+\textbf{Problem:} Say $G=(V,E),$where $V=\{1,...,n\},$ is a graph
+with weighted adjacency matrix $W,$ degree matrix $D,$ and $P=D^{-1}W.$
+We want to estimate the function $f:V\rightarrow\mathbb{R},$ or equivalently
+the vector $f\in\mathbb{R}^{n}.$ ($f_{i}=f(i)$). We are given the
+noisy observation $x=f+\epsilon,$ where $\epsilon_{i}\sim N(0,\sigma^{2}).$
+If we knew nothing about $G,$ the ``default'' estimate would be
+$f^{MLE}=x.$ 
+
+Assumption: $f$ is ``smooth'' on G. First we need to define what
+this means. 
+
+If $f$ were a $C^{2}$ function on $[0,2\pi],$ then we could write
+it as a Fourier series: 
+\[
+f(x)=\sum_{k=-\infty}^{\infty}c_{k}e^{ikx}
+\]
+ where $e^{ikx}$ are the eigenfunctions of the laplacian $\Delta.$
+This means that 
+\[
+f^{(n)}(x)=\sum i^{n}c_{k}k^{n}e^{ikx}
+\]
+ By Parceval's identity, $\parallel f^{(n)}\parallel_{L^{2}}=\sum\mid c_{k}k^{n}\mid,$
+so for $f^{(n)}$ to exist and have finite $L^{2}$ norm, $c_{k}$
+needs to decay faster than $\frac{1}{k^{n}}.$ Therefore, smoothness
+of $f$ means that the Fourier coefficients decay quickly for large
+$k.$ 
+
+\textbf{Back to the Graph Setting:} We can use this to define smoothness
+of $f.$ 
+
+\textbf{Prop: }Suppose $f=\sum_{k}c_{k}\psi_{k},$ where $\psi_{k}$
+are the eigenvalues of the graph laplacian $L=D-W,$ (This is the
+generalized Fourier series of $f.$) and that $f^{T}Lf<\delta.$ Then,
+if $1=\lambda_{1}>\cdots>\lambda_{k}\geq0$ are the eigenvectors of
+$P,$ 
+\[
+c_{k}^{2}<\frac{\delta}{1-\lambda_{k}}
+\]
+ for $k>1.$ 
+
+\textbf{Remark:} $f^{T}Lf=\frac{1}{2}\sum w_{ij}(f_{i}-f_{j})^{2},$
+which is the analogue of $\int_{0}^{2\pi}f\Delta fdx=\int_{0}^{2\pi}\mid\nabla f\mid^{2}dx,$
+so $f^{T}Lf$ being small is the analogue of the assumption that the
+derivative of $f$ is bounded in the continuous case. If $\lambda_{k}\searrow0$
+fast, then the $c_{k}$ must also decay fast, so that ``$f$ is smooth''. 
+
+\textbf{Proof: $f=\sum c_{k}\psi_{k}$ }and $P\psi_{k}=\lambda_{k}\psi_{k}.$
+$L=D-W=D(I-P),$ so $f^{T}Lf=f^{T}D(I-P)f.$ 
+
+$(I-P)=\sum c_{k}(1-\lambda_{k})\psi_{k}$ by the Fourier expansion
+of $f.$ 
+
+$\Rightarrow f^{T}D(I-P)f=(\sum_{l}c_{l}\psi_{l})^{T}D(\sum_{k}c_{k}(1-\lambda_{k})\psi_{k}).$
+By orthonormality of $\psi,$ this implies $f^{T}Lf=\sum_{k}d_{k}c_{k}^{2}(1-\lambda_{k}),$
+which implies the desired result. ///
+
+Now, the proposed method of estimating $f$ is 
+\[
+\hat{f}=Px.
+\]
+ Suppose $\epsilon=\sum_{k}g_{k}\psi_{k}.$ Note that $\epsilon,$
+as a noise term, is generally not smooth, so $g_{k}$ will \emph{not}
+decay fast. In vector form, $\epsilon=\Psi g,$ and $g\sim N(o,\sigma^{2}I).$
+Suppose $G$ is regular, i.e. $D=v_{0}I,$ so that $g_{k}\sim N(0,v_{0}\sigma^{2}).$
+The signal-to-noise ratio is $SNR=\frac{\mid c_{k}\mid^{2}}{\mathbb{E}\mid g_{k}\mid^{2}}=\frac{\mid c_{k}\mid^{2}}{v_{0}\sigma^{2}}.$ 
+
+Now, $\hat{f}=P(f+\epsilon)=\sum(c_{k}+g_{k})\lambda_{k}\psi_{k}$
+and $f=\sum c_{k}\psi_{k}.$ From this we can derive 
+\[
+(bias)^{2}(\hat{f})=\sum\frac{1}{v_{0}}(1-\lambda_{k})^{2}c_{k}^{2}\leq\frac{\delta}{v_{0}}
+\]
+\[
+var(\hat{f})=\sigma^{2}\sum\lambda_{k}^{2}.
+\]
+ If $f$ is smooth, then the $\lambda_{k}$ decay fast, and $\sigma^{2}\sum\lambda_{k}^{2}<<\sigma^{2}n=var(f^{MLE}=x),$
+so $\hat{f}$ has a bias-variance trade-off if $f$ is smooth. 
+
+This gives us the motivation for the following estimation method. 
+
+\textbf{The Method of Nonlocal Means}
+
+Given data $\{x_{i}\}_{i=1}^{n},$ with $x_{i}\in\mathbb{R}^{D},$
+construct $w_{ij}=exp(-\parallel x_{i}-x_{j}\parallel^{2}/\epsilon).$
+Then let 
+\[
+\hat{x}_{i}=\frac{\sum w_{ij}x_{j}}{\sum w_{ij}}.
+\]
+ Here, the first coordinate $\hat{x}_{i}(1)$ corresponds to the function
+$f(i)=\hat{x}_{i}(1)$ in the analysis above. 
+\end{document}
