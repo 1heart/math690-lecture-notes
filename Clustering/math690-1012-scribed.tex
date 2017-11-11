@@ -29,7 +29,9 @@ Lecture notes for October 5, 2017}
 \begin{document}
 \maketitle
 
-\section{Consistent of Spectral Clustering}
+\section{Consistency of Spectral Clustering}
+
+\subsection{The Problem Setup}
 
 Suppose $ X_{i} \sim P $ where $ P $ is some distribution on $ \Omega \subset \mathbb{R}^{D} $.
 
@@ -38,5 +40,45 @@ $ W_{ij} $ is the affinity matrix where, as an example,
 W_{ij} = e^{\frac{-|x_i - x_j|^2}{\varepsilon}}
 \]
 where $ \varepsilon > 0 $.
+\\ \\
+As $ n \to \infty $, we want to show the convergence of the graph Laplacian $ \mathcal{L} $.
+\begin{enumerate}
+  \item $ \mathcal{L}_{n} = D - W $ where $ D_{ij} = \sum_{j = 1}^{n} W_{ij} $ ($  \to U $), i.e.\ unnormalized
+  \item $ \mathcal{L}_{n}' = D^{-\frac{1}{2}} (D - W) D^{-\frac{1}{2}} $ where ($  \to U' $), i.e.\ symmetric
+  \item $ \mathcal{L}_{n}'' = D^{-1} (D - W) = I - P $, i.e.\ random walk
+\end{enumerate}
+
+\subsection{$ U $}
+
+Here, note that
+\begin{align*}
+  U &: C(\Omega) \to C(\Omega) \\
+  Uf(x) &= f(x)d(x) - \int k(x, y) f(y) dP(y)
+\end{align*}
+where
+\begin{align*}
+  dP(x) &= p(x)dx \\
+  d(x) &= \int k(x, y) dP(y) \\
+  x \in \Omega
+\end{align*}
+
+\subsection{$ U' $}
+
+Here
+\[
+U' f(x) = f(x) - \int{ \frac{ k(x, y) }{ \sqrt{ d(x) } \sqrt{ d(y) } } f(y) dP(y) }
+\]
+
+\begin{proof}
+
+  \begin{align*}
+    (D^{-\frac{1}{2}} W D^{-\frac{1}{2}})_{ij} &= \frac{1}{\sqrt{D_{ii}}} W_{ij} \frac{1}{\sqrt{D_{jj}}} \\
+    &= \frac{ \frac{1}{n} k(x_i, x_j) }{ \sqrt{ \frac{1}{n} \sum_{j'} k(x_i, x_j') } \sqrt{ \frac{1}{n} \sum_{j'} k(x_j, x_j') } } \\
+    &\approx \frac{ \frac{1}{n} k(x_i, x_j) }{ \sqrt{d(x_i)} \sqrt{d(x_j)} } \\
+  \end{align*}
+
+\end{proof}
+
+\subsection{First $ r $ spectral convergence}
 
 \end{document}
